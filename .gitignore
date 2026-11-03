@@ -1,0 +1,13 @@
+# Archivos temporales y del sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Páginas de preview generadas por el script (son pesadas y regenerables)
+assets/img/preview_pages/
+
+# JSONs temporales de índice (regenerables con los scripts)
+assets/img/indice.json
+assets/img/textos_paginas.json
+assets/img/productos/mapeo.json
+assets/img/lista_previews.json

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Postobón — TAT Distribuciones</title>
+  <meta name="description" content="Catálogo digital de productos Postobón. Distribuido por TAT. Gaseosas, jugos, hidratantes, energizantes, aguas, cervezas y más.">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+
+      <!-- Logo TAT -->
+      <div class="logo-area">
+        <img src="logo_tat.png" alt="TAT Distribuciones" class="logo-img">
+        <div class="logo-text">
+          <span class="brand">TAT Distribuciones</span>
+          <span class="sub">Tu aliado comercial</span>
+        </div>
+      </div>
+
+      <div class="logo-divider"></div>
+
+      <!-- Asociación con Postobón -->
+      <div class="logo-postobon">
+        <div class="postobon-dot"></div>
+        <span class="postobon-label">Distribuidor Postobón</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="header-stats">
+        <div class="stat-pill">📦 <strong id="total-productos">—</strong> productos</div>
+        <div class="stat-pill">🏷️ <strong id="total-marcas">—</strong> marcas</div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <!-- Logos en hero -->
+    <div class="hero-logo-banner">
+      <img src="logo_tat.png" alt="TAT" class="hero-logo-img">
+      <span class="hero-x">×</span>
+      <div class="hero-postobon-badge">
+        <span>Postobón</span>
+      </div>
+    </div>
+
+    <div class="hero-badge">Catálogo Oficial 2026</div>
+
+    <h1>
+      El mejor portafolio<br>
+      <span class="hl-azul">para tu tienda</span>,
+      <span class="hl-naranja">al mejor precio</span>
+    </h1>
+    <p class="hero-sub">
+      Gaseosas, jugos, hidratantes, energizantes, aguas, tés, cervezas y más.<br>
+      Todo el portafolio Postobón en un solo lugar.
+    </p>
+  </section>
+
+  <!-- ===== FILTROS DE CATEGORÍAS ===== -->
+  <section class="filter-section">
+    <div class="filter-title">🗂 Explorar por categoría</div>
+    <div class="cat-tabs" id="cat-tabs"></div>
+  </section>
+
+  <!-- ===== FILTROS SECUNDARIOS ===== -->
+  <div class="secondary-filters">
+
+    <!-- BÚSQUEDA aquí junto a los filtros -->
+    <div class="search-wrapper-inline">
+      <svg class="search-icon-inline" viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+      </svg>
+      <input
+        type="search"
+        id="search-input"
+        class="search-input-inline"
+        placeholder="Buscar producto, marca, código..."
+        autocomplete="off"
+      >
+    </div>
+
+    <select id="filter-marca" class="filter-select" title="Filtrar por marca">
+      <option value="TODAS">Todas las marcas</option>
+    </select>
+
+    <select id="filter-orden" class="filter-select" title="Ordenar">
+      <option value="nombre">A → Z</option>
+      <option value="precio-asc">Precio ↑</option>
+      <option value="precio-desc">Precio ↓</option>
+      <option value="codigo">Código</option>
+      <option value="marca">Marca</option>
+    </select>
+
+    <div class="results-info" id="results-count"><strong>—</strong> productos</div>
+  </div>
+
+  <!-- ===== GRID DE PRODUCTOS ===== -->
+  <main class="products-section">
+    <div class="products-grid" id="products-grid"></div>
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Sin resultados</h3>
+      <p>Intenta con otro término o cambia los filtros.</p>
+    </div>
+  </main>
+
+  <!-- ===== MODAL ===== -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <span class="modal-cat-badge" id="modal-cat">Categoría</span>
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal-image" id="modal-image"></div>
+
+      <div class="modal-body">
+        <h2 class="modal-nombre" id="modal-nombre"></h2>
+        <p class="modal-presentacion" id="modal-presentacion"></p>
+
+        <div class="modal-precio-block">
+          <div class="modal-precio" id="modal-precio"></div>
+          <div class="modal-precio-info">
+            <span>Precio por paca</span>
+            <strong id="modal-unidades"></strong>
+          </div>
+        </div>
+
+        <div class="modal-grid">
+          <div class="modal-field">
+            <div class="modal-field-label">🏷️ Marca</div>
+            <div class="modal-field-value" id="modal-marca"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-field-label">🍓 Sabor</div>
+            <div class="modal-field-value" id="modal-sabor"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-field-label">📦 Embalaje</div>
+            <div class="modal-field-value" id="modal-embalaje"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-field-label">⚖️ Peso unitario</div>
+            <div class="modal-field-value" id="modal-peso"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-field-label">🔢 ID Producto</div>
+            <div class="modal-field-value" id="modal-id"></div>
+          </div>
+          <div class="modal-field">
+            <div class="modal-field-label">📊 Almacenaje</div>
+            <div class="modal-field-value">Seco</div>
+          </div>
+        </div>
+
+        <div class="modal-barcode">
+          <div>
+            <div class="modal-field-label" style="margin-bottom:4px">🔍 Código de barras</div>
+            <div class="barcode-number" id="modal-barcode-num"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCROLL TOP ===== -->
+  <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Ir arriba">↑</button>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-logo">
+      <img src="logo_tat.png" alt="TAT" class="footer-logo-img">
+      <div class="footer-brand">TAT <span>Distribuciones</span></div>
+    </div>
+    <div class="footer-line"></div>
+    <p class="footer-text">Distribuidor autorizado Postobón · Catálogo digital 2026</p>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="assets/js/productos.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+
+</body>
+</html>
