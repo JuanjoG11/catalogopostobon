@@ -122,39 +122,47 @@ const getProductosFiltrados = () => {
 };
 
 // ===== RENDER CARD =====
-const IMG_BASE = "assets/img/productos/";
-
+const IMG_BASE      = 'assets/img/productos/';
 const SUPA_URL_CAT  = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
-const SUPA_BUCKET   = 'productos';
 const SUPA_ANON_CAT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
-const LS_ELIMINADOS = 'productos_eliminados';
-const LS_NOMBRES    = 'productos_nombres';
+const SUPA_BUCKET   = 'productos';
 
-const getEliminados = () => { try { return JSON.parse(localStorage.getItem(LS_ELIMINADOS) || '[]'); } catch { return []; } };
-const getNombres    = () => { try { return JSON.parse(localStorage.getItem(LS_NOMBRES) || '{}'); } catch { return {}; } };
-const getNombreProd = (prod) => getNombres()[prod.id] || prod.nombre;
-
-// Mapa de imágenes en memoria cargado desde Supabase
-let _supaImgMap = {};
+// Estado global cargado desde Supabase
+let _imgMap     = {};
+let _nombres    = {};
+let _eliminados = [];
 
 async function initSupaImgMap() {
   try {
-    const sb = supabase.createClient(SUPA_URL_CAT, SUPA_ANON_CAT);
-    const { data } = await sb.storage.from(SUPA_BUCKET).list('', { limit: 1000 });
-    _supaImgMap = {};
-    (data || []).forEach(f => {
+    const sbCat = supabase.createClient(SUPA_URL_CAT, SUPA_ANON_CAT);
+
+    // Fotos del bucket
+    const { data: archivos } = await sbCat.storage.from(SUPA_BUCKET).list('', { limit: 1000 });
+    _imgMap = {};
+    (archivos || []).forEach(f => {
       const m = f.name.match(/^img_(\d+)\.(\w+)$/);
-      if (m) _supaImgMap[parseInt(m[1])] = m[2];
+      if (m) _imgMap[parseInt(m[1])] = m[2];
     });
-  } catch(e) { _supaImgMap = {}; }
+
+    // Nombres y eliminados de la tabla
+    const { data: cfg } = await sbCat.from('catalogo_config').select('clave, valor');
+    (cfg || []).forEach(row => {
+      if (row.clave === 'nombres')    _nombres    = row.valor || {};
+      if (row.clave === 'eliminados') _eliminados = row.valor || [];
+    });
+  } catch(e) {
+    console.warn('No se pudo conectar a Supabase:', e);
+  }
 }
 
-const getImgSrc = (prod) => {
-  const ext = _supaImgMap[prod.id];
+const getImgSrc     = (prod) => {
+  const ext = _imgMap[prod.id];
   if (ext) return `${SUPA_URL_CAT}/storage/v1/object/public/${SUPA_BUCKET}/img_${prod.id}.${ext}`;
   if (prod.imagen) return `${IMG_BASE}${prod.imagen}`;
   return null;
 };
+const getNombreProd = (prod) => _nombres[prod.id] || prod.nombre;
+const getEliminados = ()     => _eliminados;
 
 const renderCard = (prod, delay = 0) => {
   const icon = getIconoProducto(prod);

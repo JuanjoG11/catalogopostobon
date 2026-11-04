@@ -3,180 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Fotos de Productos</title>
+  <title>Admin — Catálogo Postobón</title>
   <script src="assets/js/supabase.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f0f13; color: #e0e0e0; min-height: 100vh;
-    }
-    header {
-      background: #1a1a24; border-bottom: 1px solid #2a2a3a;
-      padding: 16px 24px; display: flex; align-items: center;
-      justify-content: space-between; position: sticky; top: 0; z-index: 100;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f13; color: #e0e0e0; min-height: 100vh; }
+    header { background: #1a1a24; border-bottom: 1px solid #2a2a3a; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 18px; font-weight: 700; color: #fff; }
     header p  { font-size: 12px; color: #555; margin-top: 2px; }
-    .btn-catalogo {
-      background: #6c63ff; color: #fff; border: none; border-radius: 8px;
-      padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
-      text-decoration: none; display: inline-block;
-    }
-    .toolbar {
-      padding: 12px 24px; display: flex; gap: 10px; flex-wrap: wrap;
-      align-items: center; background: #13131c; border-bottom: 1px solid #1e1e2e;
-    }
-    .search-box {
-      flex: 1; min-width: 200px; background: #1e1e2e; border: 1px solid #2a2a3a;
-      border-radius: 8px; padding: 8px 14px; color: #e0e0e0; font-size: 14px; outline: none;
-    }
+    .btn-cat { background: #6c63ff; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+    .toolbar { padding: 12px 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #13131c; border-bottom: 1px solid #1e1e2e; }
+    .search-box { flex: 1; min-width: 200px; background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 8px; padding: 8px 14px; color: #e0e0e0; font-size: 14px; outline: none; }
     .search-box:focus { border-color: #6c63ff; }
-    .filter-cat {
-      background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 8px;
-      padding: 8px 12px; color: #e0e0e0; font-size: 13px; outline: none; cursor: pointer;
-    }
-    .fbtn {
-      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
-      border: 1px solid transparent; cursor: pointer; transition: all 0.15s;
-    }
+    .filter-cat { background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 8px; padding: 8px 12px; color: #e0e0e0; font-size: 13px; outline: none; cursor: pointer; }
+    .fbtn { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: all 0.15s; }
     .fbtn.all { background: #2a2a3a; color: #ccc; border-color: #3a3a4a; }
     .fbtn.sin { background: #2a1515; color: #ff6b6b; border-color: #5a2020; }
     .fbtn.con { background: #152a15; color: #6bff6b; border-color: #205a20; }
     .fbtn.eli { background: #2a1a0a; color: #ffaa44; border-color: #5a3a10; }
     .fbtn.active { outline: 2px solid #6c63ff; outline-offset: 2px; }
-    .stats {
-      padding: 8px 24px; font-size: 12px; color: #555;
-      background: #0f0f13; border-bottom: 1px solid #1a1a24;
-    }
+    .stats { padding: 8px 24px; font-size: 12px; color: #555; background: #0f0f13; border-bottom: 1px solid #1a1a24; }
     .stats strong { color: #888; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 14px; padding: 18px 24px;
-    }
-    .card {
-      background: #1a1a24; border: 1px solid #2a2a3a;
-      border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; padding: 18px 24px; }
+    .card { background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 12px; overflow: hidden; transition: border-color 0.2s; }
     .card:hover { border-color: #6c63ff; }
     .card.sin-foto { border-color: #3a1e1e; }
-    .card-img {
-      width: 100%; height: 130px; background: #13131c;
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
+    .card.eliminado { opacity: 0.5; border-color: #3a2a1a; }
+    .card-img { width: 100%; height: 130px; background: #13131c; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
     .card-img img { max-height: 120px; max-width: 100%; object-fit: contain; }
     .placeholder { font-size: 44px; opacity: 0.2; }
-    .badge {
-      position: absolute; top: 6px; right: 6px;
-      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px;
-    }
+    .badge { position: absolute; top: 6px; right: 6px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
     .badge.ok  { background: #1d7a40; color: #a0ffbf; }
     .badge.bad { background: #7a1d1d; color: #ffaaaa; }
+    .badge.eli { background: #5a3a10; color: #ffaa44; }
     .card-body { padding: 10px 12px; }
-    .card-nombre { font-size: 12px; font-weight: 700; color: #e0e0e0; margin-bottom: 2px; line-height: 1.3; }
+    .card-nombre { font-size: 12px; font-weight: 700; color: #e0e0e0; margin-bottom: 2px; line-height: 1.3; cursor: pointer; }
     .card-nombre:hover { color: #a09aff; }
-    .nombre-input {
-      width: 100%; background: #0f0f13; border: 1px solid #6c63ff;
-      border-radius: 6px; padding: 5px 8px; color: #fff; font-size: 12px;
-      font-weight: 700; outline: none; margin-bottom: 4px;
-    }
-    .card-sub    { font-size: 11px; color: #aaaacc; margin-bottom: 8px; font-weight: 500; }
-    .upload-zone {
-      border: 2px dashed #2a2a3a; border-radius: 8px;
-      padding: 12px 8px; text-align: center; cursor: pointer;
-      transition: all 0.2s; position: relative; background: #13131c;
-    }
+    .nombre-input { width: 100%; background: #0f0f13; border: 1px solid #6c63ff; border-radius: 6px; padding: 5px 8px; color: #fff; font-size: 12px; font-weight: 700; outline: none; margin-bottom: 4px; }
+    .card-sub { font-size: 11px; color: #aaaacc; margin-bottom: 8px; font-weight: 500; }
+    .upload-zone { border: 2px dashed #2a2a3a; border-radius: 8px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: #13131c; }
     .upload-zone:hover, .upload-zone.over { border-color: #6c63ff; background: #1c1c2e; }
-    .upload-zone input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .uz-icon { font-size: 20px; margin-bottom: 2px; pointer-events: none; }
     .uz-text { font-size: 11px; color: #555; pointer-events: none; }
     .preview-wrap { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
     .preview-wrap img { height: 48px; border-radius: 6px; object-fit: contain; }
     .preview-wrap span { font-size: 10px; color: #888; word-break: break-all; }
-    .btn-save {
-      width: 100%; margin-top: 8px; padding: 9px;
-      background: #6c63ff; color: #fff; border: none; border-radius: 8px;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s;
-      display: none; align-items: center; justify-content: center; gap: 6px;
-    }
+    .btn-save { width: 100%; margin-top: 8px; padding: 9px; background: #6c63ff; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px; }
     .btn-save:hover:not(:disabled) { background: #5248d0; }
     .btn-save.show { display: flex; }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-quitar {
-      width: 100%; margin-top: 5px; padding: 6px;
-      background: transparent; color: #555; border: 1px solid #2a2a3a;
-      border-radius: 8px; font-size: 11px; cursor: pointer; transition: all 0.2s;
-      display: none;
-    }
+    .btn-quitar { width: 100%; margin-top: 5px; padding: 6px; background: transparent; color: #555; border: 1px solid #2a2a3a; border-radius: 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; display: none; }
     .btn-quitar:hover { color: #ff6b6b; border-color: #ff6b6b; }
     .btn-quitar.show { display: block; }
-    .btn-eliminar {
-      width: 100%; margin-top: 5px; padding: 7px;
-      background: #2a1010; color: #ff6b6b; border: 1px solid #5a2020;
-      border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-    }
+    .btn-eliminar { width: 100%; margin-top: 5px; padding: 7px; background: #2a1010; color: #ff6b6b; border: 1px solid #5a2020; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-eliminar:hover { background: #ff3b3b; color: #fff; border-color: #ff3b3b; }
-    .card.eliminado { opacity: 0.4; border-color: #3a2a1a; }
-    .card.eliminado .card-img { filter: grayscale(1); }
-    .badge.eli { background: #5a3a10; color: #ffaa44; }
-    .spinner {
-      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .progress-bar {
-      height: 3px; background: #2a2a3a; border-radius: 3px;
-      margin-top: 6px; overflow: hidden; display: none;
-    }
+    .progress-bar { height: 3px; background: #2a2a3a; border-radius: 3px; margin-top: 6px; overflow: hidden; display: none; }
     .progress-bar.show { display: block; }
     .progress-fill { height: 100%; background: #6c63ff; transition: width 0.2s; }
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: #1d7a40; color: #fff; padding: 12px 20px;
-      border-radius: 10px; font-size: 13px; font-weight: 700;
-      opacity: 0; transform: translateY(8px); transition: all 0.3s;
-      z-index: 999; pointer-events: none; max-width: 320px;
-    }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1d7a40; color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; opacity: 0; transform: translateY(8px); transition: all 0.3s; z-index: 999; pointer-events: none; max-width: 320px; }
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast.error { background: #7a1d1d; }
     .empty { grid-column: 1/-1; text-align: center; padding: 60px; color: #333; font-size: 15px; }
-    .loading-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200; flex-direction: column; gap: 16px;
-    }
-    .loading-overlay .big-spinner {
-      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2);
-      border-top-color: #6c63ff; border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    .loading-overlay p { color: #aaa; font-size: 14px; }
+    .loading { position: fixed; inset: 0; background: #0f0f13; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 300; }
+    .loading .big-spin { width: 44px; height: 44px; border: 3px solid #2a2a3a; border-top-color: #6c63ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loading p { color: #555; font-size: 14px; }
   </style>
 </head>
 <body>
 
+<div class="loading" id="loading">
+  <div class="big-spin"></div>
+  <p>Cargando datos desde Supabase...</p>
+</div>
+
 <header>
   <div>
-    <h1>🛠 Admin — Fotos de Productos</h1>
-    <p>Las fotos se suben a Supabase y aparecen en el catálogo de inmediato en cualquier dispositivo</p>
+    <h1>🛠 Admin — Catálogo Postobón</h1>
+    <p>Fotos, nombres y eliminados se guardan en Supabase — visibles en cualquier dispositivo</p>
   </div>
-  <a href="index.html" target="_blank" class="btn-catalogo">Ver catálogo →</a>
+  <a href="index.html" target="_blank" class="btn-cat">Ver catálogo →</a>
 </header>
 
 <div class="toolbar">
   <input class="search-box" type="search" id="search" placeholder="🔍  Buscar producto, marca, código...">
-  <select class="filter-cat" id="filter-cat">
-    <option value="">Todas las categorías</option>
-  </select>
-  <button class="fbtn all active" data-f="all" onclick="setFiltro(this,'all')">Todos</button>
-  <button class="fbtn sin"         data-f="sin" onclick="setFiltro(this,'sin')">❌ Sin foto</button>
-  <button class="fbtn con"         data-f="con" onclick="setFiltro(this,'con')">✅ Con foto</button>
-  <button class="fbtn eli"         data-f="eli" onclick="setFiltro(this,'eli')">🗑 Eliminados</button>
+  <select class="filter-cat" id="filter-cat"><option value="">Todas las categorías</option></select>
+  <button class="fbtn all active" onclick="setFiltro(this,'all')">Todos</button>
+  <button class="fbtn sin"        onclick="setFiltro(this,'sin')">❌ Sin foto</button>
+  <button class="fbtn con"        onclick="setFiltro(this,'con')">✅ Con foto</button>
+  <button class="fbtn eli"        onclick="setFiltro(this,'eli')">🗑 Eliminados</button>
 </div>
 
 <div class="stats" id="stats"></div>
@@ -185,94 +102,75 @@
 
 <script src="assets/js/productos.js"></script>
 <script>
-// ── Supabase ─────────────────────────────────────────────────────────────────
-const SUPA_URL    = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
-const SUPA_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
-const BUCKET      = 'productos';
-const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_ANON);
+// ══════════════════════════════════════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════════════════════════════════════
+const SUPA_URL  = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
+const BUCKET    = 'productos';
+const sb        = supabase.createClient(SUPA_URL, SUPA_ANON);
 
-// ── Limpiar localStorage SOLO de URLs largas viejas (img_override_*) ─────────
-(function limpiarLSViejo() {
-  // Solo limpiar las claves img_override_ del sistema anterior (base64 pesadas)
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('img_override_'))
-    .forEach(k => localStorage.removeItem(k));
-})();
-
-// Clave de localStorage donde guardamos el mapa id->extension
-const LS_KEY = 'supa_img_map';
-const LS_ELIMINADOS = 'productos_eliminados';
-const LS_NOMBRES    = 'productos_nombres';
-
-// Mapa en MEMORIA (no localStorage) — se recarga desde Supabase al arrancar
-let imgMapMemoria = {}; // id -> extension
-
-function getImgUrl(id) {
-  const ext = imgMapMemoria[id];
-  if (!ext) return null;
-  return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${id}.${ext}`;
-}
-
-function getEliminados() {
-  try { return JSON.parse(localStorage.getItem(LS_ELIMINADOS) || '[]'); } catch { return []; }
-}
-function setEliminados(arr) {
-  try { localStorage.setItem(LS_ELIMINADOS, JSON.stringify(arr)); } catch(e) {}
-}
-function estaEliminado(id) {
-  return getEliminados().includes(id);
-}
-
-function getNombres() {
-  try { return JSON.parse(localStorage.getItem(LS_NOMBRES) || '{}'); } catch { return {}; }
-}
-function getNombre(p) {
-  return getNombres()[p.id] || p.nombre;
-}
-
-// ── Estado ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// ESTADO GLOBAL — todo viene de Supabase, nada de localStorage
+// ══════════════════════════════════════════════════════════════════════════════
+let imgMap    = {};   // { id: "ext" }  — fotos subidas
+let nombresMap = {};  // { id: "nombre personalizado" }
+let eliminados = [];  // [id, id, ...]
+let pending   = {};   // { id: { dataUrl, file } }
 let filtroActivo = 'all';
-let pending = {}; // id -> { dataUrl, file }
 
-const CAT_ICON = {
-  GASEOSA:'🥤', JUGOS:'🍊', HIDRATANTES:'💧', ENERGIZANTES:'⚡',
-  AGUAS:'🫧', 'BEBIDA DE TE':'🍵', CERVEZA:'🍺', ALIMENTOS:'🛒', 'CAFÉ':'☕'
-};
+const CAT_ICON = { GASEOSA:'🥤', JUGOS:'🍊', HIDRATANTES:'💧', ENERGIZANTES:'⚡', AGUAS:'🫧', 'BEBIDA DE TE':'🍵', CERVEZA:'🍺', ALIMENTOS:'🛒', 'CAFÉ':'☕' };
 
-// ── Inicializar ───────────────────────────────────────────────────────────────
-const cats = [...new Set(productos.map(p => p.categoria))].sort();
-const selCat = document.getElementById('filter-cat');
-cats.forEach(c => {
-  const o = document.createElement('option'); o.value = c; o.textContent = c;
-  selCat.appendChild(o);
-});
-
-// Cargar IDs con foto existentes desde Supabase al arrancar — en MEMORIA
-async function cargarUrlsExistentes() {
-  const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
-  if (error) { console.error('Error cargando fotos:', error); return; }
-  if (!data) return;
-  imgMapMemoria = {};
-  data.forEach(file => {
-    const match = file.name.match(/^img_(\d+)\.(\w+)$/);
-    if (match) imgMapMemoria[parseInt(match[1])] = match[2];
+// ══════════════════════════════════════════════════════════════════════════════
+// CARGAR TODO DESDE SUPABASE
+// ══════════════════════════════════════════════════════════════════════════════
+async function cargarTodo() {
+  // 1. Fotos del bucket
+  const { data: archivos } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
+  imgMap = {};
+  (archivos || []).forEach(f => {
+    const m = f.name.match(/^img_(\d+)\.(\w+)$/);
+    if (m) imgMap[parseInt(m[1])] = m[2];
   });
-  console.log(`✅ ${Object.keys(imgMapMemoria).length} fotos cargadas desde Supabase`);
+
+  // 2. Nombres y eliminados de la tabla catalogo_config
+  const { data: cfg } = await sb.from('catalogo_config').select('clave, valor');
+  nombresMap = {};
+  eliminados = [];
+  (cfg || []).forEach(row => {
+    if (row.clave === 'nombres')   nombresMap  = row.valor || {};
+    if (row.clave === 'eliminados') eliminados = row.valor || [];
+  });
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function tieneFoto(p) {
-  return !!(getImgUrl(p.id) || p.imagen);
+// ══════════════════════════════════════════════════════════════════════════════
+// GUARDAR EN SUPABASE
+// ══════════════════════════════════════════════════════════════════════════════
+async function guardarNombresDB() {
+  await sb.from('catalogo_config').upsert({ clave: 'nombres', valor: nombresMap, updated_at: new Date().toISOString() });
 }
+async function guardarEliminadosDB() {
+  await sb.from('catalogo_config').upsert({ clave: 'eliminados', valor: eliminados, updated_at: new Date().toISOString() });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════════════════
+const getImgUrl   = id  => imgMap[id] ? `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${id}.${imgMap[id]}` : null;
+const getNombre   = p   => nombresMap[p.id] || p.nombre;
+const estaEliminado = id => eliminados.includes(id);
+const tieneFoto   = p   => !!(getImgUrl(p.id) || p.imagen);
 
 function getImgSrc(p) {
-  const override = getImgUrl(p.id);
-  if (override) return override;
+  const url = getImgUrl(p.id);
+  if (url) return url;
   if (p.imagen) return `assets/img/productos/${p.imagen}`;
   return null;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// FILTROS Y RENDER
+// ══════════════════════════════════════════════════════════════════════════════
 function setFiltro(btn, f) {
   filtroActivo = f;
   document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
@@ -284,33 +182,31 @@ function filtrar() {
   const q   = document.getElementById('search').value.toLowerCase().trim();
   const cat = document.getElementById('filter-cat').value;
   return productos.filter(p => {
-    const eliminado = estaEliminado(p.id);
-    if (filtroActivo === 'eli' &&  !eliminado) return false;
-    if (filtroActivo !== 'eli' &&   eliminado) return false;
+    const eli = estaEliminado(p.id);
+    if (filtroActivo === 'eli' && !eli) return false;
+    if (filtroActivo !== 'eli' &&  eli) return false;
     if (cat && p.categoria !== cat) return false;
     if (filtroActivo === 'sin' &&  tieneFoto(p)) return false;
     if (filtroActivo === 'con' && !tieneFoto(p)) return false;
     if (!q) return true;
-    return p.nombre.toLowerCase().includes(q) ||
-           p.marca.toLowerCase().includes(q) ||
-           p.sabor.toLowerCase().includes(q) ||
-           String(p.id).includes(q) ||
+    return p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) ||
+           p.sabor.toLowerCase().includes(q)  || String(p.id).includes(q) ||
            p.presentacion.toLowerCase().includes(q);
   });
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
 function render() {
-  const lista      = filtrar();
-  const total      = productos.length;
-  const sinFoto    = productos.filter(p => !tieneFoto(p) && !estaEliminado(p.id)).length;
-  const eliminados = getEliminados().length;
+  const lista    = filtrar();
+  const total    = productos.length;
+  const nEli     = eliminados.length;
+  const sinFoto  = productos.filter(p => !tieneFoto(p) && !estaEliminado(p.id)).length;
+  const conFoto  = productos.filter(p =>  tieneFoto(p) && !estaEliminado(p.id)).length;
 
   document.getElementById('stats').innerHTML =
     `Mostrando <strong>${lista.length}</strong> de <strong>${total}</strong> &nbsp;·&nbsp;` +
-    `<span style="color:#ff6b6b"> ❌ Sin foto: <strong>${sinFoto}</strong></span> &nbsp;·&nbsp;` +
-    `<span style="color:#6bff6b"> ✅ Con foto: <strong>${total - sinFoto - eliminados}</strong></span> &nbsp;·&nbsp;` +
-    `<span style="color:#ffaa44"> 🗑 Eliminados: <strong>${eliminados}</strong></span>`;
+    `<span style="color:#ff6b6b">❌ Sin foto: <strong>${sinFoto}</strong></span> &nbsp;·&nbsp;` +
+    `<span style="color:#6bff6b">✅ Con foto: <strong>${conFoto}</strong></span> &nbsp;·&nbsp;` +
+    `<span style="color:#ffaa44">🗑 Eliminados: <strong>${nEli}</strong></span>`;
 
   if (!lista.length) {
     document.getElementById('grid').innerHTML = '<div class="empty">No hay productos con ese criterio</div>';
@@ -318,245 +214,161 @@ function render() {
   }
 
   document.getElementById('grid').innerHTML = lista.map(p => {
-    const src   = getImgSrc(p);
-    const pend  = pending[p.id];
-    const show  = pend ? pend.dataUrl : src;
-    const icono = CAT_ICON[p.categoria] || '📦';
-    const hasFoto    = tieneFoto(p);
-    const hasOverride = !!getImgUrl(p.id);
+    const src  = getImgSrc(p);
+    const pend = pending[p.id];
+    const show = pend ? pend.dataUrl : src;
+    const icon = CAT_ICON[p.categoria] || '📦';
+    const eli  = estaEliminado(p.id);
+    const hasFoto = tieneFoto(p);
 
     const imgHtml = show
-      ? `<img src="${show}" alt="${p.nombre}"
-             onerror="this.style.display='none';this.nextSibling.style.display='flex'">
-         <div class="placeholder" style="display:none">${icono}</div>`
-      : `<div class="placeholder">${icono}</div>`;
+      ? `<img src="${show}" alt="${p.nombre}" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="placeholder" style="display:none">${icon}</div>`
+      : `<div class="placeholder">${icon}</div>`;
 
-    const eliminado = estaEliminado(p.id);
-    const badge = eliminado
+    const badge = eli
       ? `<span class="badge eli">🗑 eliminado</span>`
       : `<span class="badge ${hasFoto ? 'ok' : 'bad'}">${hasFoto ? '✓ foto' : 'sin foto'}</span>`;
 
-    const previewHtml = pend
-      ? `<div class="preview-wrap">
-           <img src="${pend.dataUrl}"><span>${pend.file.name}</span>
-         </div>` : '';
+    const cuerpo = eli ? `
+      <p style="font-size:12px;color:#ffaa44;padding:8px 0">Oculto en el catálogo</p>
+      <button class="btn-eliminar" style="background:#1a3a1a;color:#6bff6b;border-color:#205a20" onclick="restaurar(${p.id})">↩ Restaurar</button>
+    ` : `
+      ${pend ? `<div class="preview-wrap"><img src="${pend.dataUrl}"><span>${pend.file.name}</span></div>` : ''}
+      <div class="upload-zone" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="onDrop(event,${p.id})">
+        <input type="file" accept="image/*" onchange="onFile(this,${p.id})">
+        <div class="uz-icon">${pend ? '🖼️' : '📁'}</div>
+        <div class="uz-text">${pend ? 'Lista para subir' : 'Clic o arrastra una foto'}</div>
+      </div>
+      <div class="progress-bar" id="pb-${p.id}"><div class="progress-fill" id="pf-${p.id}" style="width:0%"></div></div>
+      <button class="btn-save ${pend ? 'show' : ''}" id="bs-${p.id}" onclick="guardarFoto(${p.id})"><span>💾 Guardar foto</span></button>
+      <button class="btn-quitar ${getImgUrl(p.id) ? 'show' : ''}" onclick="quitarFoto(${p.id})">🗑 Quitar foto</button>
+      <button class="btn-eliminar" onclick="eliminar(${p.id})">🗑 Eliminar del catálogo</button>
+    `;
 
     return `
-      <div class="card ${hasFoto ? '' : 'sin-foto'} ${eliminado ? 'eliminado' : ''}" id="card-${p.id}">
-        <div class="card-img">
-          ${imgHtml}
-          ${badge}
-        </div>
+      <div class="card ${eli ? 'eliminado' : (hasFoto ? '' : 'sin-foto')}" id="card-${p.id}">
+        <div class="card-img">${imgHtml}${badge}</div>
         <div class="card-body">
-          <div class="card-nombre" id="nom-${p.id}" onclick="editarNombre(${p.id})"
-               title="Clic para editar nombre" style="cursor:pointer">
-            ${getNombre(p)} <span style="font-size:9px;color:#555;margin-left:3px">✏️</span>
+          <div class="card-nombre" id="nom-${p.id}" onclick="editarNombre(${p.id})" title="Clic para editar">
+            ${getNombre(p)} <span style="font-size:9px;color:#555">✏️</span>
           </div>
           <div class="card-sub">${p.marca} · ${p.presentacion}</div>
-
-          ${eliminado ? `
-            <div style="font-size:12px;color:#ffaa44;padding:8px 0">Este producto está oculto en el catálogo</div>
-            <button class="btn-eliminar" style="background:#1a3a1a;color:#6bff6b;border-color:#205a20"
-                    onclick="restaurarProducto(${p.id})">↩ Restaurar producto</button>
-          ` : `
-            ${previewHtml}
-            <div class="upload-zone" id="uz-${p.id}"
-                 ondragover="event.preventDefault();this.classList.add('over')"
-                 ondragleave="this.classList.remove('over')"
-                 ondrop="onDrop(event,${p.id})">
-              <input type="file" accept="image/*" onchange="onFile(this,${p.id})">
-              <div class="uz-icon">${pend ? '🖼️' : '📁'}</div>
-              <div class="uz-text">${pend ? 'Lista para subir' : 'Clic o arrastra una foto'}</div>
-            </div>
-            <div class="progress-bar" id="pb-${p.id}">
-              <div class="progress-fill" id="pf-${p.id}" style="width:0%"></div>
-            </div>
-            <button class="btn-save ${pend ? 'show' : ''}" id="bs-${p.id}" onclick="guardar(${p.id})">
-              <span>💾 Guardar foto</span>
-            </button>
-            <button class="btn-quitar ${hasOverride ? 'show' : ''}" id="bq-${p.id}" onclick="quitarFoto(${p.id})">
-              🗑 Quitar foto personalizada
-            </button>
-            <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">
-              🗑 Eliminar producto del catálogo
-            </button>
-          `}
+          ${cuerpo}
         </div>
       </div>`;
   }).join('');
 }
 
-// ── Archivo / Drop ────────────────────────────────────────────────────────────
-function onFile(input, id) {
-  const f = input.files[0];
-  if (f) leerImagen(f, id);
+// ══════════════════════════════════════════════════════════════════════════════
+// FOTO
+// ══════════════════════════════════════════════════════════════════════════════
+function onFile(input, id) { const f = input.files[0]; if (f) leer(f, id); }
+function onDrop(e, id) {
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) leer(f, id);
+}
+function leer(file, id) {
+  const r = new FileReader();
+  r.onload = e => { pending[id] = { dataUrl: e.target.result, file }; render(); };
+  r.readAsDataURL(file);
 }
 
-function onDrop(event, id) {
-  event.preventDefault();
-  document.getElementById(`uz-${id}`)?.classList.remove('over');
-  const f = event.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) leerImagen(f, id);
-}
-
-function leerImagen(file, id) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    pending[id] = { dataUrl: e.target.result, file };
-    render();
-  };
-  reader.readAsDataURL(file);
-}
-
-// ── Guardar en Supabase ───────────────────────────────────────────────────────
-async function guardar(id) {
+async function guardarFoto(id) {
   const pend = pending[id];
   if (!pend) return;
-
   const btn = document.getElementById(`bs-${id}`);
   const pb  = document.getElementById(`pb-${id}`);
   const pf  = document.getElementById(`pf-${id}`);
-
-  // UI: loading
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div><span>Subiendo...</span>';
-  pb.classList.add('show');
-  pf.style.width = '30%';
-
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div><span>Subiendo...</span>';
+  pb.classList.add('show'); pf.style.width = '40%';
   const ext = pend.file.name.split('.').pop().toLowerCase() || 'jpg';
   const fileName = `img_${id}.${ext}`;
-
   try {
-    pf.style.width = '60%';
-
-    // Subir a Supabase Storage (upsert para sobreescribir si ya existe)
-    const { error: upError } = await sb.storage
-      .from(BUCKET)
-      .upload(fileName, pend.file, { upsert: true, contentType: pend.file.type });
-
-    if (upError) throw upError;
-
-    pf.style.width = '90%';
-
-    // Obtener URL pública
-    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
-
-    // Actualizar mapa en memoria
-    imgMapMemoria[id] = ext;
-
+    const { error } = await sb.storage.from(BUCKET).upload(fileName, pend.file, { upsert: true, contentType: pend.file.type });
+    if (error) throw error;
     pf.style.width = '100%';
+    imgMap[id] = ext;
     delete pending[id];
-
-    toast('✅ ¡Foto guardada! Ya aparece en el catálogo');
-    setTimeout(() => { pb.classList.remove('show'); pf.style.width = '0%'; render(); }, 600);
-
+    toast('✅ Foto guardada');
+    setTimeout(() => { pb.classList.remove('show'); pf.style.width = '0%'; render(); }, 500);
   } catch(err) {
-    console.error(err);
-    btn.disabled = false;
-    btn.innerHTML = '<span>💾 Guardar foto</span>';
-    pb.classList.remove('show');
-    toast('❌ Error al subir: ' + (err.message || err), true);
+    btn.disabled = false; btn.innerHTML = '<span>💾 Guardar foto</span>'; pb.classList.remove('show');
+    toast('❌ Error: ' + (err.message || err), true);
   }
 }
 
-// ── Editar nombre ─────────────────────────────────────────────────────────────
+async function quitarFoto(id) {
+  if (!confirm('¿Quitar la foto de este producto?')) return;
+  const ext = imgMap[id];
+  if (ext) { await sb.storage.from(BUCKET).remove([`img_${id}.${ext}`]); delete imgMap[id]; }
+  toast('🗑 Foto eliminada'); render();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NOMBRE
+// ══════════════════════════════════════════════════════════════════════════════
 function editarNombre(id) {
   const el = document.getElementById(`nom-${id}`);
   if (!el) return;
-  const prod = productos.find(p => p.id === id);
-  const nombreActual = getNombre(prod);
-
-  // Reemplazar el div con un input
-  el.outerHTML = `
-    <input class="nombre-input" id="inp-nom-${id}"
-           value="${nombreActual.replace(/"/g, '&quot;')}"
-           onblur="guardarNombre(${id})"
-           onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')cancelarNombre(${id}, this)"
-    >`;
-
-  document.getElementById(`inp-nom-${id}`)?.focus();
+  const actual = getNombre(productos.find(p => p.id === id));
+  el.outerHTML = `<input class="nombre-input" id="inp-${id}" value="${actual.replace(/"/g,'&quot;')}"
+    onblur="guardarNombre(${id})" onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){event.preventDefault();render();}">`;
+  document.getElementById(`inp-${id}`)?.focus();
 }
 
-function guardarNombre(id) {
-  const input = document.getElementById(`inp-nom-${id}`);
+async function guardarNombre(id) {
+  const input = document.getElementById(`inp-${id}`);
   if (!input) return;
-  const nuevoNombre = input.value.trim();
-  if (nuevoNombre) {
-    const map = getNombres();
-    const prod = productos.find(p => p.id === id);
-    if (nuevoNombre === prod.nombre) {
-      delete map[id];
-    } else {
-      map[id] = nuevoNombre;
-    }
-    try {
-      localStorage.setItem(LS_NOMBRES, JSON.stringify(map));
-      toast('✅ Nombre actualizado');
-    } catch(e) {
-      // localStorage lleno — limpiar y reintentar
-      limpiarTodoLS();
-      try {
-        const mapNuevo = {}; mapNuevo[id] = nuevoNombre;
-        localStorage.setItem(LS_NOMBRES, JSON.stringify(mapNuevo));
-        toast('✅ Nombre actualizado (caché limpiada)');
-      } catch(e2) {
-        toast('❌ No se pudo guardar — recarga la página', true);
-      }
-    }
-  }
+  const nuevo = input.value.trim();
+  const prod  = productos.find(p => p.id === id);
+  if (!nuevo) { render(); return; }
+  if (nuevo === prod.nombre) { delete nombresMap[id]; }
+  else { nombresMap[id] = nuevo; }
+  await guardarNombresDB();
+  toast('✅ Nombre guardado');
   render();
 }
 
-function cancelarNombre(id, input) {
-  render(); // simplemente re-renderiza sin guardar
-}
-async function quitarFoto(id) {
-  if (!confirm('¿Quitar la foto personalizada de este producto?')) return;
-
-  const ext = imgMapMemoria[id];
-  if (ext) {
-    const fileName = `img_${id}.${ext}`;
-    await sb.storage.from(BUCKET).remove([fileName]);
-    delete imgMapMemoria[id];
-  }
-  toast('🗑 Foto eliminada');
-  render();
-}
-
-// ── Eliminar / Restaurar producto ─────────────────────────────────────────────
-function eliminarProducto(id) {
+// ══════════════════════════════════════════════════════════════════════════════
+// ELIMINAR / RESTAURAR
+// ══════════════════════════════════════════════════════════════════════════════
+async function eliminar(id) {
   const prod = productos.find(p => p.id === id);
-  if (!confirm(`¿Eliminar "${prod?.nombre}" del catálogo?\n\nEl producto quedará oculto. Puedes restaurarlo desde "🗑 Eliminados".`)) return;
-  const arr = getEliminados();
-  if (!arr.includes(id)) arr.push(id);
-  setEliminados(arr);
-  toast(`🗑 "${prod?.nombre}" eliminado del catálogo`);
-  render();
+  if (!confirm(`¿Ocultar "${getNombre(prod)}" del catálogo?`)) return;
+  if (!eliminados.includes(id)) eliminados.push(id);
+  await guardarEliminadosDB();
+  toast(`🗑 Producto oculto`); render();
 }
 
-function restaurarProducto(id) {
-  const prod = productos.find(p => p.id === id);
-  const arr = getEliminados().filter(x => x !== id);
-  setEliminados(arr);
-  toast(`✅ "${prod?.nombre}" restaurado en el catálogo`);
-  render();
+async function restaurar(id) {
+  eliminados = eliminados.filter(x => x !== id);
+  await guardarEliminadosDB();
+  toast('✅ Producto restaurado'); render();
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function toast(msg, isError = false) {
+// ══════════════════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════════════════
+function toast(msg, err = false) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast show${isError ? ' error' : ''}`;
+  t.textContent = msg; t.className = `toast show${err ? ' error' : ''}`;
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ── Eventos ───────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════════════════════════════════
+const cats = [...new Set(productos.map(p => p.categoria))].sort();
+const selCat = document.getElementById('filter-cat');
+cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCat.appendChild(o); });
+
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('filter-cat').addEventListener('change', render);
 
-// Arrancar: cargar URLs existentes y renderizar
 (async () => {
-  await cargarUrlsExistentes();
+  await cargarTodo();
+  document.getElementById('loading').style.display = 'none';
   render();
 })();
 </script>
