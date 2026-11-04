@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Fotos de Productos</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -192,16 +192,24 @@ const BUCKET      = 'productos';
 const { createClient } = supabase;
 const sb = createClient(SUPA_URL, SUPA_ANON);
 
+// ── Limpiar localStorage SOLO de URLs largas viejas (img_override_*) ─────────
+(function limpiarLSViejo() {
+  // Solo limpiar las claves img_override_ del sistema anterior (base64 pesadas)
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('img_override_'))
+    .forEach(k => localStorage.removeItem(k));
+})();
+
 // Clave de localStorage donde guardamos el mapa id->extension
 const LS_KEY = 'supa_img_map';
 const LS_ELIMINADOS = 'productos_eliminados';
 const LS_NOMBRES    = 'productos_nombres';
 
-function getImgMap() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; }
-}
+// Mapa en MEMORIA (no localStorage) — se recarga desde Supabase al arrancar
+let imgMapMemoria = {}; // id -> extension
+
 function getImgUrl(id) {
-  const ext = getImgMap()[id];
+  const ext = imgMapMemoria[id];
   if (!ext) return null;
   return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${id}.${ext}`;
 }
@@ -210,7 +218,7 @@ function getEliminados() {
   try { return JSON.parse(localStorage.getItem(LS_ELIMINADOS) || '[]'); } catch { return []; }
 }
 function setEliminados(arr) {
-  localStorage.setItem(LS_ELIMINADOS, JSON.stringify(arr));
+  try { localStorage.setItem(LS_ELIMINADOS, JSON.stringify(arr)); } catch(e) {}
 }
 function estaEliminado(id) {
   return getEliminados().includes(id);
@@ -240,17 +248,17 @@ cats.forEach(c => {
   selCat.appendChild(o);
 });
 
-// Cargar IDs con foto existentes desde Supabase al arrancar
+// Cargar IDs con foto existentes desde Supabase al arrancar — en MEMORIA
 async function cargarUrlsExistentes() {
   const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
-  if (error || !data) return;
-  const map = {};
+  if (error) { console.error('Error cargando fotos:', error); return; }
+  if (!data) return;
+  imgMapMemoria = {};
   data.forEach(file => {
-    // Nombre: img_{id}.{ext}
     const match = file.name.match(/^img_(\d+)\.(\w+)$/);
-    if (match) map[parseInt(match[1])] = match[2]; // guardar extensión
+    if (match) imgMapMemoria[parseInt(match[1])] = match[2];
   });
-  localStorage.setItem(LS_KEY, JSON.stringify(map));
+  console.log(`✅ ${Object.keys(imgMapMemoria).length} fotos cargadas desde Supabase`);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -433,10 +441,8 @@ async function guardar(id) {
     // Obtener URL pública
     const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
 
-    // Solo guardar la extensión del archivo (liviano, no la URL completa)
-    const map = getImgMap();
-    map[id] = ext;
-    localStorage.setItem(LS_KEY, JSON.stringify(map));
+    // Actualizar mapa en memoria
+    imgMapMemoria[id] = ext;
 
     pf.style.width = '100%';
     delete pending[id];
@@ -479,12 +485,24 @@ function guardarNombre(id) {
     const map = getNombres();
     const prod = productos.find(p => p.id === id);
     if (nuevoNombre === prod.nombre) {
-      delete map[id]; // si volvió al original, borrar override
+      delete map[id];
     } else {
       map[id] = nuevoNombre;
     }
-    localStorage.setItem(LS_NOMBRES, JSON.stringify(map));
-    toast('✅ Nombre actualizado');
+    try {
+      localStorage.setItem(LS_NOMBRES, JSON.stringify(map));
+      toast('✅ Nombre actualizado');
+    } catch(e) {
+      // localStorage lleno — limpiar y reintentar
+      limpiarTodoLS();
+      try {
+        const mapNuevo = {}; mapNuevo[id] = nuevoNombre;
+        localStorage.setItem(LS_NOMBRES, JSON.stringify(mapNuevo));
+        toast('✅ Nombre actualizado (caché limpiada)');
+      } catch(e2) {
+        toast('❌ No se pudo guardar — recarga la página', true);
+      }
+    }
   }
   render();
 }
@@ -495,14 +513,11 @@ function cancelarNombre(id, input) {
 async function quitarFoto(id) {
   if (!confirm('¿Quitar la foto personalizada de este producto?')) return;
 
-  // Buscar y eliminar el archivo en Supabase
-  const map = getImgMap();
-  const url = map[id];
-  if (url) {
-    const fileName = url.split('/').pop();
+  const ext = imgMapMemoria[id];
+  if (ext) {
+    const fileName = `img_${id}.${ext}`;
     await sb.storage.from(BUCKET).remove([fileName]);
-    delete map[id];
-    setImgMap(map);
+    delete imgMapMemoria[id];
   }
   toast('🗑 Foto eliminada');
   render();
