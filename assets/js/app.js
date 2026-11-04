@@ -76,7 +76,8 @@ const getColorCat = (cat) => CONFIG.coloresCat[cat] || 'bg-alimentos';
 
 // ===== FILTRADO Y ORDENADO =====
 const getProductosFiltrados = () => {
-  let lista = [...productos];
+  const eliminados = getEliminados();
+  let lista = [...productos].filter(p => !eliminados.includes(p.id));
 
   // Filtro categoría
   if (estado.categoriaActiva !== 'TODOS') {
@@ -123,13 +124,32 @@ const getProductosFiltrados = () => {
 // ===== RENDER CARD =====
 const IMG_BASE = "assets/img/productos/";
 
+const SUPA_URL_CAT  = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
+const SUPA_BUCKET   = 'productos';
+const LS_KEY        = 'supa_img_map';
+const LS_ELIMINADOS = 'productos_eliminados';
+const LS_NOMBRES    = 'productos_nombres';
+
+const getImgMap     = () => { try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; } };
+const getEliminados = () => { try { return JSON.parse(localStorage.getItem(LS_ELIMINADOS) || '[]'); } catch { return []; } };
+const getNombres    = () => { try { return JSON.parse(localStorage.getItem(LS_NOMBRES) || '{}'); } catch { return {}; } };
+const getNombreProd = (prod) => getNombres()[prod.id] || prod.nombre;
+
+const getImgSrc = (prod) => {
+  const map = getImgMap();
+  const ext = map[prod.id];
+  if (ext) return `${SUPA_URL_CAT}/storage/v1/object/public/${SUPA_BUCKET}/img_${prod.id}.${ext}`;
+  if (prod.imagen) return `${IMG_BASE}${prod.imagen}`;
+  return null;
+};
+
 const renderCard = (prod, delay = 0) => {
   const icon = getIconoProducto(prod);
   const colorCls = getColorCat(prod.categoria);
   const catInfo = CONFIG.categorias[prod.categoria] || { icon: '📦' };
 
-  const imgHtml = prod.imagen
-    ? `<img src="${IMG_BASE}${prod.imagen}" alt="${prod.nombre}"
+  const imgHtml = getImgSrc(prod)
+    ? `<img src="${getImgSrc(prod)}" alt="${prod.nombre}"
          loading="lazy"
          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
        >
@@ -150,7 +170,7 @@ const renderCard = (prod, delay = 0) => {
         <span class="card-embalaje-badge">${prod.embalaje}</span>
       </div>
       <div class="card-body">
-        <div class="card-nombre">${prod.nombre}</div>
+        <div class="card-nombre">${getNombreProd(prod)}</div>
         <div class="card-presentacion">${prod.presentacion}</div>
         <div class="card-meta">
           <span class="meta-chip"><span class="chip-icon">${catInfo.icon}</span>${prod.categoria}</span>
@@ -201,8 +221,8 @@ const abrirModal = (id) => {
 
   document.getElementById('modal-cat').textContent = `${catInfo.icon} ${catInfo.label}`;
   document.getElementById('modal-image').className = `modal-image ${colorCls}`;
-  const modalImgContent = prod.imagen
-    ? `<img src="assets/img/productos/${prod.imagen}" alt="${prod.nombre}"
+  const modalImgContent = getImgSrc(prod)
+    ? `<img src="${getImgSrc(prod)}" alt="${prod.nombre}"
          style="max-height:200px;max-width:100%;object-fit:contain;border-radius:12px;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.5))"
          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
        >
@@ -215,7 +235,7 @@ const abrirModal = (id) => {
          <span style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:2px;text-transform:uppercase">${prod.volumen}</span>
        </div>`;
   document.getElementById('modal-image').innerHTML = modalImgContent;
-  document.getElementById('modal-nombre').textContent = prod.nombre;
+  document.getElementById('modal-nombre').textContent = getNombreProd(prod);
   document.getElementById('modal-presentacion').textContent = prod.presentacion;
   document.getElementById('modal-precio').textContent = formatoPrecio(prod.precio);
   document.getElementById('modal-unidades').textContent = `${prod.unidades} unidades por paca`;

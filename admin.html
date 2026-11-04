@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Fotos de Productos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13; color: #e0e0e0; min-height: 100vh;
+    }
+    header {
+      background: #1a1a24; border-bottom: 1px solid #2a2a3a;
+      padding: 16px 24px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+    }
+    header h1 { font-size: 18px; font-weight: 700; color: #fff; }
+    header p  { font-size: 12px; color: #555; margin-top: 2px; }
+    .btn-catalogo {
+      background: #6c63ff; color: #fff; border: none; border-radius: 8px;
+      padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+      text-decoration: none; display: inline-block;
+    }
+    .toolbar {
+      padding: 12px 24px; display: flex; gap: 10px; flex-wrap: wrap;
+      align-items: center; background: #13131c; border-bottom: 1px solid #1e1e2e;
+    }
+    .search-box {
+      flex: 1; min-width: 200px; background: #1e1e2e; border: 1px solid #2a2a3a;
+      border-radius: 8px; padding: 8px 14px; color: #e0e0e0; font-size: 14px; outline: none;
+    }
+    .search-box:focus { border-color: #6c63ff; }
+    .filter-cat {
+      background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 8px;
+      padding: 8px 12px; color: #e0e0e0; font-size: 13px; outline: none; cursor: pointer;
+    }
+    .fbtn {
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      border: 1px solid transparent; cursor: pointer; transition: all 0.15s;
+    }
+    .fbtn.all { background: #2a2a3a; color: #ccc; border-color: #3a3a4a; }
+    .fbtn.sin { background: #2a1515; color: #ff6b6b; border-color: #5a2020; }
+    .fbtn.con { background: #152a15; color: #6bff6b; border-color: #205a20; }
+    .fbtn.eli { background: #2a1a0a; color: #ffaa44; border-color: #5a3a10; }
+    .fbtn.active { outline: 2px solid #6c63ff; outline-offset: 2px; }
+    .stats {
+      padding: 8px 24px; font-size: 12px; color: #555;
+      background: #0f0f13; border-bottom: 1px solid #1a1a24;
+    }
+    .stats strong { color: #888; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px; padding: 18px 24px;
+    }
+    .card {
+      background: #1a1a24; border: 1px solid #2a2a3a;
+      border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #6c63ff; }
+    .card.sin-foto { border-color: #3a1e1e; }
+    .card-img {
+      width: 100%; height: 130px; background: #13131c;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .card-img img { max-height: 120px; max-width: 100%; object-fit: contain; }
+    .placeholder { font-size: 44px; opacity: 0.2; }
+    .badge {
+      position: absolute; top: 6px; right: 6px;
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px;
+    }
+    .badge.ok  { background: #1d7a40; color: #a0ffbf; }
+    .badge.bad { background: #7a1d1d; color: #ffaaaa; }
+    .card-body { padding: 10px 12px; }
+    .card-nombre { font-size: 12px; font-weight: 700; color: #e0e0e0; margin-bottom: 2px; line-height: 1.3; }
+    .card-nombre:hover { color: #a09aff; }
+    .nombre-input {
+      width: 100%; background: #0f0f13; border: 1px solid #6c63ff;
+      border-radius: 6px; padding: 5px 8px; color: #fff; font-size: 12px;
+      font-weight: 700; outline: none; margin-bottom: 4px;
+    }
+    .card-sub    { font-size: 11px; color: #aaaacc; margin-bottom: 8px; font-weight: 500; }
+    .upload-zone {
+      border: 2px dashed #2a2a3a; border-radius: 8px;
+      padding: 12px 8px; text-align: center; cursor: pointer;
+      transition: all 0.2s; position: relative; background: #13131c;
+    }
+    .upload-zone:hover, .upload-zone.over { border-color: #6c63ff; background: #1c1c2e; }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .uz-icon { font-size: 20px; margin-bottom: 2px; pointer-events: none; }
+    .uz-text { font-size: 11px; color: #555; pointer-events: none; }
+    .preview-wrap { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .preview-wrap img { height: 48px; border-radius: 6px; object-fit: contain; }
+    .preview-wrap span { font-size: 10px; color: #888; word-break: break-all; }
+    .btn-save {
+      width: 100%; margin-top: 8px; padding: 9px;
+      background: #6c63ff; color: #fff; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s;
+      display: none; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-save:hover:not(:disabled) { background: #5248d0; }
+    .btn-save.show { display: flex; }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-quitar {
+      width: 100%; margin-top: 5px; padding: 6px;
+      background: transparent; color: #555; border: 1px solid #2a2a3a;
+      border-radius: 8px; font-size: 11px; cursor: pointer; transition: all 0.2s;
+      display: none;
+    }
+    .btn-quitar:hover { color: #ff6b6b; border-color: #ff6b6b; }
+    .btn-quitar.show { display: block; }
+    .btn-eliminar {
+      width: 100%; margin-top: 5px; padding: 7px;
+      background: #2a1010; color: #ff6b6b; border: 1px solid #5a2020;
+      border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-eliminar:hover { background: #ff3b3b; color: #fff; border-color: #ff3b3b; }
+    .card.eliminado { opacity: 0.4; border-color: #3a2a1a; }
+    .card.eliminado .card-img { filter: grayscale(1); }
+    .badge.eli { background: #5a3a10; color: #ffaa44; }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-bar {
+      height: 3px; background: #2a2a3a; border-radius: 3px;
+      margin-top: 6px; overflow: hidden; display: none;
+    }
+    .progress-bar.show { display: block; }
+    .progress-fill { height: 100%; background: #6c63ff; transition: width 0.2s; }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1d7a40; color: #fff; padding: 12px 20px;
+      border-radius: 10px; font-size: 13px; font-weight: 700;
+      opacity: 0; transform: translateY(8px); transition: all 0.3s;
+      z-index: 999; pointer-events: none; max-width: 320px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #7a1d1d; }
+    .empty { grid-column: 1/-1; text-align: center; padding: 60px; color: #333; font-size: 15px; }
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; flex-direction: column; gap: 16px;
+    }
+    .loading-overlay .big-spinner {
+      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #6c63ff; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-overlay p { color: #aaa; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🛠 Admin — Fotos de Productos</h1>
+    <p>Las fotos se suben a Supabase y aparecen en el catálogo de inmediato en cualquier dispositivo</p>
+  </div>
+  <a href="index.html" target="_blank" class="btn-catalogo">Ver catálogo →</a>
+</header>
+
+<div class="toolbar">
+  <input class="search-box" type="search" id="search" placeholder="🔍  Buscar producto, marca, código...">
+  <select class="filter-cat" id="filter-cat">
+    <option value="">Todas las categorías</option>
+  </select>
+  <button class="fbtn all active" data-f="all" onclick="setFiltro(this,'all')">Todos</button>
+  <button class="fbtn sin"         data-f="sin" onclick="setFiltro(this,'sin')">❌ Sin foto</button>
+  <button class="fbtn con"         data-f="con" onclick="setFiltro(this,'con')">✅ Con foto</button>
+  <button class="fbtn eli"         data-f="eli" onclick="setFiltro(this,'eli')">🗑 Eliminados</button>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="grid"  id="grid"></div>
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/productos.js"></script>
+<script>
+// ── Supabase ─────────────────────────────────────────────────────────────────
+const SUPA_URL    = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
+const SUPA_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
+const BUCKET      = 'productos';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_ANON);
+
+// Clave de localStorage donde guardamos el mapa id->extension
+const LS_KEY = 'supa_img_map';
+const LS_ELIMINADOS = 'productos_eliminados';
+const LS_NOMBRES    = 'productos_nombres';
+
+function getImgMap() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { return {}; }
+}
+function getImgUrl(id) {
+  const ext = getImgMap()[id];
+  if (!ext) return null;
+  return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${id}.${ext}`;
+}
+
+function getEliminados() {
+  try { return JSON.parse(localStorage.getItem(LS_ELIMINADOS) || '[]'); } catch { return []; }
+}
+function setEliminados(arr) {
+  localStorage.setItem(LS_ELIMINADOS, JSON.stringify(arr));
+}
+function estaEliminado(id) {
+  return getEliminados().includes(id);
+}
+
+function getNombres() {
+  try { return JSON.parse(localStorage.getItem(LS_NOMBRES) || '{}'); } catch { return {}; }
+}
+function getNombre(p) {
+  return getNombres()[p.id] || p.nombre;
+}
+
+// ── Estado ───────────────────────────────────────────────────────────────────
+let filtroActivo = 'all';
+let pending = {}; // id -> { dataUrl, file }
+
+const CAT_ICON = {
+  GASEOSA:'🥤', JUGOS:'🍊', HIDRATANTES:'💧', ENERGIZANTES:'⚡',
+  AGUAS:'🫧', 'BEBIDA DE TE':'🍵', CERVEZA:'🍺', ALIMENTOS:'🛒', 'CAFÉ':'☕'
+};
+
+// ── Inicializar ───────────────────────────────────────────────────────────────
+const cats = [...new Set(productos.map(p => p.categoria))].sort();
+const selCat = document.getElementById('filter-cat');
+cats.forEach(c => {
+  const o = document.createElement('option'); o.value = c; o.textContent = c;
+  selCat.appendChild(o);
+});
+
+// Cargar IDs con foto existentes desde Supabase al arrancar
+async function cargarUrlsExistentes() {
+  const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
+  if (error || !data) return;
+  const map = {};
+  data.forEach(file => {
+    // Nombre: img_{id}.{ext}
+    const match = file.name.match(/^img_(\d+)\.(\w+)$/);
+    if (match) map[parseInt(match[1])] = match[2]; // guardar extensión
+  });
+  localStorage.setItem(LS_KEY, JSON.stringify(map));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function tieneFoto(p) {
+  return !!(getImgUrl(p.id) || p.imagen);
+}
+
+function getImgSrc(p) {
+  const override = getImgUrl(p.id);
+  if (override) return override;
+  if (p.imagen) return `assets/img/productos/${p.imagen}`;
+  return null;
+}
+
+function setFiltro(btn, f) {
+  filtroActivo = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function filtrar() {
+  const q   = document.getElementById('search').value.toLowerCase().trim();
+  const cat = document.getElementById('filter-cat').value;
+  return productos.filter(p => {
+    const eliminado = estaEliminado(p.id);
+    if (filtroActivo === 'eli' &&  !eliminado) return false;
+    if (filtroActivo !== 'eli' &&   eliminado) return false;
+    if (cat && p.categoria !== cat) return false;
+    if (filtroActivo === 'sin' &&  tieneFoto(p)) return false;
+    if (filtroActivo === 'con' && !tieneFoto(p)) return false;
+    if (!q) return true;
+    return p.nombre.toLowerCase().includes(q) ||
+           p.marca.toLowerCase().includes(q) ||
+           p.sabor.toLowerCase().includes(q) ||
+           String(p.id).includes(q) ||
+           p.presentacion.toLowerCase().includes(q);
+  });
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const lista      = filtrar();
+  const total      = productos.length;
+  const sinFoto    = productos.filter(p => !tieneFoto(p) && !estaEliminado(p.id)).length;
+  const eliminados = getEliminados().length;
+
+  document.getElementById('stats').innerHTML =
+    `Mostrando <strong>${lista.length}</strong> de <strong>${total}</strong> &nbsp;·&nbsp;` +
+    `<span style="color:#ff6b6b"> ❌ Sin foto: <strong>${sinFoto}</strong></span> &nbsp;·&nbsp;` +
+    `<span style="color:#6bff6b"> ✅ Con foto: <strong>${total - sinFoto - eliminados}</strong></span> &nbsp;·&nbsp;` +
+    `<span style="color:#ffaa44"> 🗑 Eliminados: <strong>${eliminados}</strong></span>`;
+
+  if (!lista.length) {
+    document.getElementById('grid').innerHTML = '<div class="empty">No hay productos con ese criterio</div>';
+    return;
+  }
+
+  document.getElementById('grid').innerHTML = lista.map(p => {
+    const src   = getImgSrc(p);
+    const pend  = pending[p.id];
+    const show  = pend ? pend.dataUrl : src;
+    const icono = CAT_ICON[p.categoria] || '📦';
+    const hasFoto    = tieneFoto(p);
+    const hasOverride = !!getImgUrl(p.id);
+
+    const imgHtml = show
+      ? `<img src="${show}" alt="${p.nombre}"
+             onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+         <div class="placeholder" style="display:none">${icono}</div>`
+      : `<div class="placeholder">${icono}</div>`;
+
+    const eliminado = estaEliminado(p.id);
+    const badge = eliminado
+      ? `<span class="badge eli">🗑 eliminado</span>`
+      : `<span class="badge ${hasFoto ? 'ok' : 'bad'}">${hasFoto ? '✓ foto' : 'sin foto'}</span>`;
+
+    const previewHtml = pend
+      ? `<div class="preview-wrap">
+           <img src="${pend.dataUrl}"><span>${pend.file.name}</span>
+         </div>` : '';
+
+    return `
+      <div class="card ${hasFoto ? '' : 'sin-foto'} ${eliminado ? 'eliminado' : ''}" id="card-${p.id}">
+        <div class="card-img">
+          ${imgHtml}
+          ${badge}
+        </div>
+        <div class="card-body">
+          <div class="card-nombre" id="nom-${p.id}" onclick="editarNombre(${p.id})"
+               title="Clic para editar nombre" style="cursor:pointer">
+            ${getNombre(p)} <span style="font-size:9px;color:#555;margin-left:3px">✏️</span>
+          </div>
+          <div class="card-sub">${p.marca} · ${p.presentacion}</div>
+
+          ${eliminado ? `
+            <div style="font-size:12px;color:#ffaa44;padding:8px 0">Este producto está oculto en el catálogo</div>
+            <button class="btn-eliminar" style="background:#1a3a1a;color:#6bff6b;border-color:#205a20"
+                    onclick="restaurarProducto(${p.id})">↩ Restaurar producto</button>
+          ` : `
+            ${previewHtml}
+            <div class="upload-zone" id="uz-${p.id}"
+                 ondragover="event.preventDefault();this.classList.add('over')"
+                 ondragleave="this.classList.remove('over')"
+                 ondrop="onDrop(event,${p.id})">
+              <input type="file" accept="image/*" onchange="onFile(this,${p.id})">
+              <div class="uz-icon">${pend ? '🖼️' : '📁'}</div>
+              <div class="uz-text">${pend ? 'Lista para subir' : 'Clic o arrastra una foto'}</div>
+            </div>
+            <div class="progress-bar" id="pb-${p.id}">
+              <div class="progress-fill" id="pf-${p.id}" style="width:0%"></div>
+            </div>
+            <button class="btn-save ${pend ? 'show' : ''}" id="bs-${p.id}" onclick="guardar(${p.id})">
+              <span>💾 Guardar foto</span>
+            </button>
+            <button class="btn-quitar ${hasOverride ? 'show' : ''}" id="bq-${p.id}" onclick="quitarFoto(${p.id})">
+              🗑 Quitar foto personalizada
+            </button>
+            <button class="btn-eliminar" onclick="eliminarProducto(${p.id})">
+              🗑 Eliminar producto del catálogo
+            </button>
+          `}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Archivo / Drop ────────────────────────────────────────────────────────────
+function onFile(input, id) {
+  const f = input.files[0];
+  if (f) leerImagen(f, id);
+}
+
+function onDrop(event, id) {
+  event.preventDefault();
+  document.getElementById(`uz-${id}`)?.classList.remove('over');
+  const f = event.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) leerImagen(f, id);
+}
+
+function leerImagen(file, id) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    pending[id] = { dataUrl: e.target.result, file };
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Guardar en Supabase ───────────────────────────────────────────────────────
+async function guardar(id) {
+  const pend = pending[id];
+  if (!pend) return;
+
+  const btn = document.getElementById(`bs-${id}`);
+  const pb  = document.getElementById(`pb-${id}`);
+  const pf  = document.getElementById(`pf-${id}`);
+
+  // UI: loading
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Subiendo...</span>';
+  pb.classList.add('show');
+  pf.style.width = '30%';
+
+  const ext = pend.file.name.split('.').pop().toLowerCase() || 'jpg';
+  const fileName = `img_${id}.${ext}`;
+
+  try {
+    pf.style.width = '60%';
+
+    // Subir a Supabase Storage (upsert para sobreescribir si ya existe)
+    const { error: upError } = await sb.storage
+      .from(BUCKET)
+      .upload(fileName, pend.file, { upsert: true, contentType: pend.file.type });
+
+    if (upError) throw upError;
+
+    pf.style.width = '90%';
+
+    // Obtener URL pública
+    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(fileName);
+
+    // Solo guardar la extensión del archivo (liviano, no la URL completa)
+    const map = getImgMap();
+    map[id] = ext;
+    localStorage.setItem(LS_KEY, JSON.stringify(map));
+
+    pf.style.width = '100%';
+    delete pending[id];
+
+    toast('✅ ¡Foto guardada! Ya aparece en el catálogo');
+    setTimeout(() => { pb.classList.remove('show'); pf.style.width = '0%'; render(); }, 600);
+
+  } catch(err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.innerHTML = '<span>💾 Guardar foto</span>';
+    pb.classList.remove('show');
+    toast('❌ Error al subir: ' + (err.message || err), true);
+  }
+}
+
+// ── Editar nombre ─────────────────────────────────────────────────────────────
+function editarNombre(id) {
+  const el = document.getElementById(`nom-${id}`);
+  if (!el) return;
+  const prod = productos.find(p => p.id === id);
+  const nombreActual = getNombre(prod);
+
+  // Reemplazar el div con un input
+  el.outerHTML = `
+    <input class="nombre-input" id="inp-nom-${id}"
+           value="${nombreActual.replace(/"/g, '&quot;')}"
+           onblur="guardarNombre(${id})"
+           onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')cancelarNombre(${id}, this)"
+    >`;
+
+  document.getElementById(`inp-nom-${id}`)?.focus();
+}
+
+function guardarNombre(id) {
+  const input = document.getElementById(`inp-nom-${id}`);
+  if (!input) return;
+  const nuevoNombre = input.value.trim();
+  if (nuevoNombre) {
+    const map = getNombres();
+    const prod = productos.find(p => p.id === id);
+    if (nuevoNombre === prod.nombre) {
+      delete map[id]; // si volvió al original, borrar override
+    } else {
+      map[id] = nuevoNombre;
+    }
+    localStorage.setItem(LS_NOMBRES, JSON.stringify(map));
+    toast('✅ Nombre actualizado');
+  }
+  render();
+}
+
+function cancelarNombre(id, input) {
+  render(); // simplemente re-renderiza sin guardar
+}
+async function quitarFoto(id) {
+  if (!confirm('¿Quitar la foto personalizada de este producto?')) return;
+
+  // Buscar y eliminar el archivo en Supabase
+  const map = getImgMap();
+  const url = map[id];
+  if (url) {
+    const fileName = url.split('/').pop();
+    await sb.storage.from(BUCKET).remove([fileName]);
+    delete map[id];
+    setImgMap(map);
+  }
+  toast('🗑 Foto eliminada');
+  render();
+}
+
+// ── Eliminar / Restaurar producto ─────────────────────────────────────────────
+function eliminarProducto(id) {
+  const prod = productos.find(p => p.id === id);
+  if (!confirm(`¿Eliminar "${prod?.nombre}" del catálogo?\n\nEl producto quedará oculto. Puedes restaurarlo desde "🗑 Eliminados".`)) return;
+  const arr = getEliminados();
+  if (!arr.includes(id)) arr.push(id);
+  setEliminados(arr);
+  toast(`🗑 "${prod?.nombre}" eliminado del catálogo`);
+  render();
+}
+
+function restaurarProducto(id) {
+  const prod = productos.find(p => p.id === id);
+  const arr = getEliminados().filter(x => x !== id);
+  setEliminados(arr);
+  toast(`✅ "${prod?.nombre}" restaurado en el catálogo`);
+  render();
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show${isError ? ' error' : ''}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Eventos ───────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filter-cat').addEventListener('change', render);
+
+// Arrancar: cargar URLs existentes y renderizar
+(async () => {
+  await cargarUrlsExistentes();
+  render();
+})();
+</script>
+</body>
+</html>
