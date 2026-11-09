@@ -70,6 +70,36 @@
     .loading { position: fixed; inset: 0; background: #0f0f13; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 300; }
     .loading .big-spin { width: 44px; height: 44px; border: 3px solid #2a2a3a; border-top-color: #6c63ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     .loading p { color: #555; font-size: 14px; }
+
+    /* BOTÓN AGREGAR PRODUCTO */
+    .btn-add { background: #1d7a40; color: #a0ffbf; border: 1px solid #205a20; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-add:hover { background: #25a050; color: #fff; }
+
+    /* MODAL AGREGAR PRODUCTO */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s; overflow-y: auto; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-form { background: #1a1a24; border: 1px solid #2a2a3a; border-radius: 16px; width: 100%; max-width: 580px; transform: translateY(18px); transition: transform 0.25s; }
+    .modal-overlay.open .modal-form { transform: translateY(0); }
+    .mf-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #2a2a3a; }
+    .mf-header h2 { font-size: 17px; font-weight: 800; color: #fff; }
+    .mf-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #2a2a3a; background: transparent; color: #888; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .mf-close:hover { background: #ff3b3b; color: #fff; border-color: #ff3b3b; }
+    .mf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 20px 22px; }
+    .mf-field { display: flex; flex-direction: column; gap: 5px; }
+    .mf-field.mf-col2 { grid-column: 1/-1; }
+    .mf-field label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mf-field label .req { color: #ff6b6b; }
+    .mf-field input, .mf-field select { background: #0f0f13; border: 1px solid #2a2a3a; border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s; }
+    .mf-field input:focus, .mf-field select:focus { border-color: #6c63ff; }
+    .mf-field input::placeholder { color: #444; }
+    .mf-actions { display: flex; gap: 10px; padding: 0 22px 14px; justify-content: flex-end; }
+    .mf-btn-cancel { padding: 10px 20px; border-radius: 8px; border: 1px solid #2a2a3a; background: transparent; color: #aaa; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .mf-btn-cancel:hover { background: #1e1e2e; color: #fff; }
+    .mf-btn-save { padding: 10px 22px; border-radius: 8px; border: none; background: #6c63ff; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+    .mf-btn-save:hover { background: #5248d0; }
+    .mf-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .mf-hint { padding: 0 22px 18px; font-size: 11px; color: #555; text-align: center; }
+    @media (max-width: 520px) { .mf-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -88,6 +118,7 @@
 </header>
 
 <div class="toolbar">
+  <button class="btn-add" onclick="abrirFormProducto()">➕ Agregar producto</button>
   <input class="search-box" type="search" id="search" placeholder="🔍  Buscar producto, marca, código...">
   <select class="filter-cat" id="filter-cat"><option value="">Todas las categorías</option></select>
   <button class="fbtn all active" onclick="setFiltro(this,'all')">Todos</button>
@@ -98,6 +129,70 @@
 
 <div class="stats" id="stats"></div>
 <div class="grid"  id="grid"></div>
+<!-- MODAL AGREGAR PRODUCTO -->
+<div class="modal-overlay" id="form-producto">
+  <div class="modal-form">
+    <div class="mf-header">
+      <h2>➕ Agregar producto</h2>
+      <button class="mf-close" onclick="cerrarFormProducto()" aria-label="Cerrar">✕</button>
+    </div>
+    <form id="np-form" onsubmit="event.preventDefault(); guardarProducto()">
+      <div class="mf-grid">
+        <div class="mf-field mf-col2">
+          <label>Nombre <span class="req">*</span></label>
+          <input type="text" id="np-nombre" required placeholder="Ej: NARANJA POSTOBON">
+        </div>
+        <div class="mf-field">
+          <label>Marca <span class="req">*</span></label>
+          <input type="text" id="np-marca" list="np-marcas-list" required placeholder="Ej: POSTOBON">
+          <datalist id="np-marcas-list"></datalist>
+        </div>
+        <div class="mf-field">
+          <label>Categoría <span class="req">*</span></label>
+          <select id="np-categoria" required></select>
+        </div>
+        <div class="mf-field">
+          <label>Sabor</label>
+          <input type="text" id="np-sabor" placeholder="Ej: Naranja">
+        </div>
+        <div class="mf-field">
+          <label>Embalaje <span class="req">*</span></label>
+          <select id="np-embalaje" required></select>
+        </div>
+        <div class="mf-field">
+          <label>Presentación</label>
+          <input type="text" id="np-presentacion" placeholder="Ej: 400 ML PET X 15">
+        </div>
+        <div class="mf-field">
+          <label>Volumen</label>
+          <input type="text" id="np-volumen" placeholder="Ej: 400ml">
+        </div>
+        <div class="mf-field">
+          <label>Unidades por paca</label>
+          <input type="number" id="np-unidades" min="1" placeholder="15">
+        </div>
+        <div class="mf-field">
+          <label>Precio por paca (COP)</label>
+          <input type="number" id="np-precio" min="0" placeholder="31250">
+        </div>
+        <div class="mf-field">
+          <label>Peso unitario (kg)</label>
+          <input type="number" id="np-peso" step="0.001" min="0" placeholder="0.422">
+        </div>
+        <div class="mf-field mf-col2">
+          <label>Código de barras</label>
+          <input type="text" id="np-codigo" placeholder="7702090...">
+        </div>
+      </div>
+      <div class="mf-actions">
+        <button type="button" class="mf-btn-cancel" onclick="cerrarFormProducto()">Cancelar</button>
+        <button type="submit" class="mf-btn-save" id="np-btn-save">💾 Guardar producto</button>
+      </div>
+    </form>
+    <p class="mf-hint">Podrás subir la foto desde la tarjeta del producto una vez creado.</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="assets/js/productos.js"></script>
@@ -118,6 +213,8 @@ let nombresMap = {};  // { id: "nombre personalizado" }
 let eliminados = [];  // [id, id, ...]
 let pending   = {};   // { id: { dataUrl, file } }
 let filtroActivo = 'all';
+let productosCustom = [];  // productos creados desde el admin
+let nextCustomId    = 90001;  // próximo ID para productos personalizados
 
 const CAT_ICON = { GASEOSA:'🥤', JUGOS:'🍊', HIDRATANTES:'💧', ENERGIZANTES:'⚡', AGUAS:'🫧', 'BEBIDA DE TE':'🍵', CERVEZA:'🍺', ALIMENTOS:'🛒', 'CAFÉ':'☕' };
 
@@ -133,13 +230,22 @@ async function cargarTodo() {
     if (m) imgMap[parseInt(m[1])] = m[2];
   });
 
-  // 2. Nombres y eliminados de la tabla catalogo_config
+  // 2. Nombres, eliminados y productos personalizados de la tabla catalogo_config
   const { data: cfg } = await sb.from('catalogo_config').select('clave, valor');
   nombresMap = {};
   eliminados = [];
+  productosCustom = [];
+  nextCustomId = 90001;
   (cfg || []).forEach(row => {
-    if (row.clave === 'nombres')   nombresMap  = row.valor || {};
-    if (row.clave === 'eliminados') eliminados = row.valor || [];
+    if (row.clave === 'nombres')          nombresMap      = row.valor || {};
+    if (row.clave === 'eliminados')       eliminados      = row.valor || [];
+    if (row.clave === 'productos_custom') productosCustom = row.valor || [];
+    if (row.clave === 'productos_next_id') nextCustomId   = row.valor || 90001;
+  });
+
+  // 3. Fusionar productos personalizados al array global
+  productosCustom.forEach(p => {
+    if (!productos.find(x => x.id === p.id)) productos.push(p);
   });
 }
 
@@ -151,6 +257,12 @@ async function guardarNombresDB() {
 }
 async function guardarEliminadosDB() {
   await sb.from('catalogo_config').upsert({ clave: 'eliminados', valor: eliminados, updated_at: new Date().toISOString() });
+}
+async function guardarProductosCustomDB() {
+  await sb.from('catalogo_config').upsert({ clave: 'productos_custom', valor: productosCustom, updated_at: new Date().toISOString() });
+}
+async function guardarNextIdDB() {
+  await sb.from('catalogo_config').upsert({ clave: 'productos_next_id', valor: nextCustomId, updated_at: new Date().toISOString() });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -232,6 +344,7 @@ function render() {
     const cuerpo = eli ? `
       <p style="font-size:12px;color:#ffaa44;padding:8px 0">Oculto en el catálogo</p>
       <button class="btn-eliminar" style="background:#1a3a1a;color:#6bff6b;border-color:#205a20" onclick="restaurar(${p.id})">↩ Restaurar</button>
+      ${p.custom ? `<button class="btn-eliminar" style="margin-top:5px;background:#1a0a0a;color:#ff4444;border-color:#5a1a1a" onclick="eliminarDefinitivo(${p.id})">🗑 Eliminar definitivo</button>` : ''}
     ` : `
       ${pend ? `<div class="preview-wrap"><img src="${pend.dataUrl}"><span>${pend.file.name}</span></div>` : ''}
       <div class="upload-zone" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="onDrop(event,${p.id})">
@@ -243,6 +356,7 @@ function render() {
       <button class="btn-save ${pend ? 'show' : ''}" id="bs-${p.id}" onclick="guardarFoto(${p.id})"><span>💾 Guardar foto</span></button>
       <button class="btn-quitar ${getImgUrl(p.id) ? 'show' : ''}" onclick="quitarFoto(${p.id})">🗑 Quitar foto</button>
       <button class="btn-eliminar" onclick="eliminar(${p.id})">🗑 Eliminar del catálogo</button>
+      ${p.custom ? `<button class="btn-eliminar" style="margin-top:5px;background:#1a0a0a;color:#ff4444;border-color:#5a1a1a" onclick="eliminarDefinitivo(${p.id})">🗑 Eliminar definitivo</button>` : ''}
     `;
 
     return `
@@ -348,6 +462,115 @@ async function restaurar(id) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// AGREGAR PRODUCTO
+// ══════════════════════════════════════════════════════════════════════════════
+function abrirFormProducto() {
+  // Categorías existentes
+  const catSel = document.getElementById('np-categoria');
+  catSel.innerHTML = '<option value="">Selecciona...</option>' +
+    [...new Set(productos.map(p => p.categoria))].sort()
+      .map(c => `<option value="${c}">${c}</option>`).join('');
+
+  // Embalajes existentes
+  const embSel = document.getElementById('np-embalaje');
+  embSel.innerHTML = '<option value="">Selecciona...</option>' +
+    [...new Set(productos.map(p => p.embalaje))].sort()
+      .map(e => `<option value="${e}">${e}</option>`).join('');
+
+  // Marcas (datalist)
+  const marcas = [...new Set(productos.map(p => p.marca))].sort();
+  document.getElementById('np-marcas-list').innerHTML =
+    marcas.map(m => `<option value="${m}">`).join('');
+
+  document.getElementById('form-producto').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('np-nombre').focus(), 100);
+}
+
+function cerrarFormProducto() {
+  document.getElementById('form-producto').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('np-form').reset();
+}
+
+async function guardarProducto() {
+  const nombre       = document.getElementById('np-nombre').value.trim();
+  const marca        = document.getElementById('np-marca').value.trim();
+  const categoria    = document.getElementById('np-categoria').value;
+  const embalaje     = document.getElementById('np-embalaje').value;
+
+  if (!nombre || !marca || !categoria || !embalaje) {
+    toast('❌ Completa los campos obligatorios', true);
+    return;
+  }
+
+  const btn = document.getElementById('np-btn-save');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Guardando...</span>';
+
+  const prod = {
+    id: nextCustomId,
+    nombre,
+    marca,
+    categoria,
+    embalaje,
+    sabor:       document.getElementById('np-sabor').value.trim(),
+    presentacion: document.getElementById('np-presentacion').value.trim(),
+    volumen:     document.getElementById('np-volumen').value.trim(),
+    unidades:    parseInt(document.getElementById('np-unidades').value) || 0,
+    codigoBarra: document.getElementById('np-codigo').value.trim(),
+    precio:      parseInt(document.getElementById('np-precio').value) || 0,
+    peso:        parseFloat(document.getElementById('np-peso').value) || 0,
+    imagen:      '',
+    custom:      true
+  };
+
+  try {
+    productosCustom.push(prod);
+    productos.push(prod);
+    nextCustomId++;
+    await guardarProductosCustomDB();
+    await guardarNextIdDB();
+    cerrarFormProducto();
+    toast('✅ Producto agregado');
+    render();
+  } catch(err) {
+    toast('❌ Error al guardar: ' + (err.message || err), true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '💾 Guardar producto';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ELIMINAR DEFINITIVO (solo productos personalizados)
+// ══════════════════════════════════════════════════════════════════════════════
+async function eliminarDefinitivo(id) {
+  const prod = productos.find(p => p.id === id);
+  if (!prod || !prod.custom) return;
+  if (!confirm(`¿Eliminar definitivamente "${getNombre(prod)}"?\nEsta acción no se puede deshacer.`)) return;
+  // Quitar de productosCustom
+  productosCustom = productosCustom.filter(p => p.id !== id);
+  await guardarProductosCustomDB();
+  // Quitar de eliminados si estaba oculto
+  if (eliminados.includes(id)) {
+    eliminados = eliminados.filter(x => x !== id);
+    await guardarEliminadosDB();
+  }
+  // Quitar foto del bucket
+  const ext = imgMap[id];
+  if (ext) {
+    try { await sb.storage.from(BUCKET).remove([`img_${id}.${ext}`]); } catch(e) {}
+    delete imgMap[id];
+  }
+  // Quitar del array global
+  const idx = productos.findIndex(p => p.id === id);
+  if (idx !== -1) productos.splice(idx, 1);
+  toast('🗑 Producto eliminado definitivamente');
+  render();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════════════════════════════════════
 function toast(msg, err = false) {
@@ -368,6 +591,10 @@ document.getElementById('filter-cat').addEventListener('change', render);
 
 (async () => {
   await cargarTodo();
+  // Re-poblar filtro de categorías incluyendo productos personalizados
+  const allCats = [...new Set(productos.map(p => p.categoria))].sort();
+  selCat.innerHTML = '<option value="">Todas las categorías</option>';
+  allCats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCat.appendChild(o); });
   document.getElementById('loading').style.display = 'none';
   render();
 })();

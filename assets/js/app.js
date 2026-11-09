@@ -149,6 +149,12 @@ async function initSupaImgMap() {
     (cfg || []).forEach(row => {
       if (row.clave === 'nombres')    _nombres    = row.valor || {};
       if (row.clave === 'eliminados') _eliminados = row.valor || [];
+      if (row.clave === 'productos_custom') {
+        const custom = row.valor || [];
+        custom.forEach(p => {
+          if (!productos.find(x => x.id === p.id)) productos.push(p);
+        });
+      }
     });
   } catch(e) {
     console.warn('No se pudo conectar a Supabase:', e);
