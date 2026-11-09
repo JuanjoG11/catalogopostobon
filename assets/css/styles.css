@@ -677,15 +677,15 @@ body.loaded { opacity: 1; }
 .card-id { font-size: 10px; color: rgba(255,255,255,0.2); font-family: monospace; }
 
 /* ===== COLORES FONDO POR CATEGORÍA ===== */
-.bg-gaseosa   { background: linear-gradient(135deg, #071824 0%, #0C2535 100%); }
-.bg-hidratantes{ background: linear-gradient(135deg, #061A24 0%, #0A2B3A 100%); }
-.bg-energizantes{ background: linear-gradient(135deg, #1A1200 0%, #2A1E00 100%); }
-.bg-jugos     { background: linear-gradient(135deg, #1A0A00 0%, #2A1400 100%); }
-.bg-aguas     { background: linear-gradient(135deg, #061820 0%, #0B2A36 100%); }
-.bg-te        { background: linear-gradient(135deg, #091A06 0%, #122A0E 100%); }
-.bg-cerveza   { background: linear-gradient(135deg, #1A1000 0%, #2A1A00 100%); }
-.bg-alimentos { background: linear-gradient(135deg, #0D0E1A 0%, #151828 100%); }
-.bg-cafe      { background: linear-gradient(135deg, #190D00 0%, #271600 100%); }
+.bg-gaseosa   { background: #f0f4f8; }
+.bg-hidratantes{ background: #f0f4f8; }
+.bg-energizantes{ background: #f0f4f8; }
+.bg-jugos     { background: #f0f4f8; }
+.bg-aguas     { background: #f0f4f8; }
+.bg-te        { background: #f0f4f8; }
+.bg-cerveza   { background: #f0f4f8; }
+.bg-alimentos { background: #f0f4f8; }
+.bg-cafe      { background: #f0f4f8; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
