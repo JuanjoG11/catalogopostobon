@@ -75,6 +75,36 @@
     .btn-add { background: #1d7a40; color: #a0ffbf; border: 1px solid #205a20; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .btn-add:hover { background: #25a050; color: #fff; }
 
+    /* SECCIÓN OFERTAS */
+    .ofertas-section { padding: 20px 24px; border-bottom: 2px solid #2a1a0a; background: #0f0f13; }
+    .ofertas-section h2 { font-size: 16px; font-weight: 800; color: #FFD700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .ofertas-section p  { font-size: 11px; color: #555; margin-bottom: 16px; }
+    .ofertas-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .oferta-admin-card { background: #1a1a24; border: 1px solid #3a2a0a; border-radius: 12px; overflow: hidden; }
+    .oferta-admin-card:hover { border-color: #FFD700; }
+    .oferta-admin-header { background: linear-gradient(135deg, #2a1800, #1a1000); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .oferta-admin-icon { font-size: 22px; }
+    .oferta-admin-titulo { font-size: 12px; font-weight: 800; color: #FFD700; line-height: 1.3; }
+    .oferta-admin-gratis { font-size: 10px; color: #FFA500; font-weight: 600; }
+    .oferta-admin-img-wrap { width: 100%; height: 110px; background: #13131c; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .oferta-admin-img-wrap img { max-height: 100px; max-width: 100%; object-fit: contain; }
+    .oferta-admin-placeholder { font-size: 40px; opacity: 0.3; }
+    .oferta-admin-body { padding: 10px 12px; }
+    .oferta-upload-zone { border: 2px dashed #3a2a0a; border-radius: 8px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: #13131c; margin-bottom: 8px; }
+    .oferta-upload-zone:hover, .oferta-upload-zone.over { border-color: #FFD700; background: #1a1500; }
+    .oferta-upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .oferta-upload-zone .uz-icon { font-size: 18px; margin-bottom: 2px; pointer-events: none; }
+    .oferta-upload-zone .uz-text { font-size: 10px; color: #555; pointer-events: none; }
+    .oferta-preview { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .oferta-preview img { height: 44px; border-radius: 6px; object-fit: contain; }
+    .oferta-preview span { font-size: 10px; color: #888; word-break: break-all; }
+    .btn-oferta-save { width: 100%; padding: 9px; background: #FFD700; color: #000; border: none; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+    .btn-oferta-save:hover { background: #FFA500; }
+    .btn-oferta-save.show { display: flex; }
+    .btn-oferta-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-oferta-quitar { width: 100%; padding: 7px; background: transparent; color: #555; border: 1px solid #2a2a3a; border-radius: 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; margin-top: 5px; }
+    .btn-oferta-quitar:hover { color: #ff6b6b; border-color: #ff6b6b; }
+
     /* MODAL AGREGAR PRODUCTO */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px; opacity: 0; pointer-events: none; transition: opacity 0.25s; overflow-y: auto; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
@@ -128,6 +158,14 @@
 </div>
 
 <div class="stats" id="stats"></div>
+
+<!-- ══════ SECCIÓN GESTIÓN DE OFERTAS ══════ -->
+<div class="ofertas-section">
+  <h2>🔥 Gestión de Ofertas</h2>
+  <p>Sube o cambia la foto de cada oferta. Se guarda en Supabase y se muestra en el catálogo al instante.</p>
+  <div class="ofertas-cards" id="ofertas-admin-grid"></div>
+</div>
+
 <div class="grid"  id="grid"></div>
 <!-- MODAL AGREGAR PRODUCTO -->
 <div class="modal-overlay" id="form-producto">
@@ -571,6 +609,138 @@ async function eliminarDefinitivo(id) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE OFERTAS (fotos)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Definición de las ofertas (misma que app.js)
+const OFERTAS_ADMIN = [
+  { id: 'oferta-andina-light',  titulo: 'ANDINA LIGHT 473ML',      gratis: 'GRATIS 2 UNIDADES', icono: '🍺' },
+  { id: 'oferta-speed-flow',    titulo: 'SPEED MAX FLOW 473ML',    gratis: 'GRATIS 1 UNIDAD',   icono: '⚡' },
+  { id: 'oferta-pepsi-1250',    titulo: 'PEPSI S.I 1250ML',        gratis: 'GRATIS 1 UNIDAD',   icono: '🥤' },
+];
+
+// Mapa de fotos de ofertas { ofertaId: "ext" }
+let ofertaImgMap = {};
+let ofertaPending = {}; // { ofertaId: { dataUrl, file } }
+
+function getOfertaImgKey(ofertaId) { return `oferta_${ofertaId}`; }
+
+function getOfertaImgUrl(ofertaId) {
+  const ext = ofertaImgMap[ofertaId];
+  if (!ext) return null;
+  return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/${getOfertaImgKey(ofertaId)}.${ext}`;
+}
+
+async function cargarFotosOfertas() {
+  // Las fotos de ofertas se guardan con nombre oferta_<id>.ext en el mismo bucket
+  const { data: archivos } = await sb.storage.from(BUCKET).list('', { limit: 1000 });
+  ofertaImgMap = {};
+  (archivos || []).forEach(f => {
+    const m = f.name.match(/^oferta_(.+)\.(\w+)$/);
+    if (m) ofertaImgMap[m[1]] = m[2];
+  });
+}
+
+function renderOfertasAdmin() {
+  const grid = document.getElementById('ofertas-admin-grid');
+  if (!grid) return;
+
+  grid.innerHTML = OFERTAS_ADMIN.map(oferta => {
+    const imgUrl = getOfertaImgUrl(oferta.id);
+    const pend   = ofertaPending[oferta.id];
+    const show   = pend ? pend.dataUrl : imgUrl;
+
+    const imgHtml = show
+      ? `<img src="${show}" alt="${oferta.titulo}" onerror="this.style.display='none';this.nextSibling.style.display='block'"><div class="oferta-admin-placeholder" style="display:none">${oferta.icono}</div>`
+      : `<div class="oferta-admin-placeholder">${oferta.icono}</div>`;
+
+    const previewHtml = pend
+      ? `<div class="oferta-preview"><img src="${pend.dataUrl}"><span>${pend.file.name}</span></div>`
+      : '';
+
+    return `
+      <div class="oferta-admin-card" id="oa-${oferta.id}">
+        <div class="oferta-admin-header">
+          <div class="oferta-admin-icon">${oferta.icono}</div>
+          <div>
+            <div class="oferta-admin-titulo">${oferta.titulo}</div>
+            <div class="oferta-admin-gratis">🎁 ${oferta.gratis}</div>
+          </div>
+        </div>
+        <div class="oferta-admin-img-wrap">${imgHtml}</div>
+        <div class="oferta-admin-body">
+          ${previewHtml}
+          <div class="oferta-upload-zone"
+            ondragover="event.preventDefault();this.classList.add('over')"
+            ondragleave="this.classList.remove('over')"
+            ondrop="onDropOferta(event,'${oferta.id}')">
+            <input type="file" accept="image/*" onchange="onFileOferta(this,'${oferta.id}')">
+            <div class="uz-icon">${pend ? '🖼️' : '📁'}</div>
+            <div class="uz-text">${pend ? 'Lista para subir' : 'Clic o arrastra la foto'}</div>
+          </div>
+          <button class="btn-oferta-save ${pend ? 'show' : ''}" id="bos-${oferta.id}" onclick="guardarFotoOferta('${oferta.id}')">
+            💾 Guardar foto
+          </button>
+          ${imgUrl ? `<button class="btn-oferta-quitar" onclick="quitarFotoOferta('${oferta.id}')">🗑 Quitar foto</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function onFileOferta(input, ofertaId) {
+  const f = input.files[0];
+  if (f) leerOferta(f, ofertaId);
+}
+function onDropOferta(e, ofertaId) {
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) leerOferta(f, ofertaId);
+}
+function leerOferta(file, ofertaId) {
+  const r = new FileReader();
+  r.onload = e => { ofertaPending[ofertaId] = { dataUrl: e.target.result, file }; renderOfertasAdmin(); };
+  r.readAsDataURL(file);
+}
+
+async function guardarFotoOferta(ofertaId) {
+  const pend = ofertaPending[ofertaId];
+  if (!pend) return;
+  const btn = document.getElementById(`bos-${ofertaId}`);
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Subiendo...';
+  const ext      = pend.file.name.split('.').pop().toLowerCase() || 'jpg';
+  const fileName = `${getOfertaImgKey(ofertaId)}.${ext}`;
+  try {
+    // Borrar versiones anteriores con distinta extensión
+    const oldExt = ofertaImgMap[ofertaId];
+    if (oldExt && oldExt !== ext) {
+      await sb.storage.from(BUCKET).remove([`${getOfertaImgKey(ofertaId)}.${oldExt}`]);
+    }
+    const { error } = await sb.storage.from(BUCKET).upload(fileName, pend.file, { upsert: true, contentType: pend.file.type });
+    if (error) throw error;
+    ofertaImgMap[ofertaId] = ext;
+    delete ofertaPending[ofertaId];
+    toast('✅ Foto de oferta guardada');
+    renderOfertasAdmin();
+  } catch(err) {
+    toast('❌ Error: ' + (err.message || err), true);
+    btn.disabled = false;
+    btn.innerHTML = '💾 Guardar foto';
+  }
+}
+
+async function quitarFotoOferta(ofertaId) {
+  if (!confirm('¿Quitar la foto de esta oferta?')) return;
+  const ext = ofertaImgMap[ofertaId];
+  if (ext) {
+    await sb.storage.from(BUCKET).remove([`${getOfertaImgKey(ofertaId)}.${ext}`]);
+    delete ofertaImgMap[ofertaId];
+  }
+  toast('🗑 Foto de oferta eliminada');
+  renderOfertasAdmin();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════════════════════════════════════
 function toast(msg, err = false) {
@@ -591,11 +761,13 @@ document.getElementById('filter-cat').addEventListener('change', render);
 
 (async () => {
   await cargarTodo();
+  await cargarFotosOfertas();
   // Re-poblar filtro de categorías incluyendo productos personalizados
   const allCats = [...new Set(productos.map(p => p.categoria))].sort();
   selCat.innerHTML = '<option value="">Todas las categorías</option>';
   allCats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCat.appendChild(o); });
   document.getElementById('loading').style.display = 'none';
+  renderOfertasAdmin();
   render();
 })();
 </script>

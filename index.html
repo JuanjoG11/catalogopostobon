@@ -36,8 +36,41 @@
         <div class="stat-pill">🏷️ <strong id="total-marcas">—</strong> marcas</div>
       </div>
 
+      <!-- Botón Ofertas -->
+      <button class="ofertas-btn" id="btn-ofertas" onclick="abrirOfertas()" aria-label="Ver ofertas">
+        <span class="ofertas-btn-icon">🔥</span>
+        <span class="ofertas-btn-text">OFERTAS</span>
+        <span class="ofertas-btn-badge" id="ofertas-badge">3</span>
+      </button>
+
     </div>
   </header>
+
+  <!-- ===== MODAL OFERTAS ===== -->
+  <div class="ofertas-overlay" id="ofertas-overlay" onclick="cerrarOfertas(event)">
+    <div class="ofertas-modal" role="dialog" aria-modal="true" aria-label="Ofertas disponibles">
+
+      <!-- Header del modal -->
+      <div class="ofertas-header">
+        <div class="ofertas-header-bg"></div>
+        <div class="ofertas-header-content">
+          <div class="ofertas-megafono">📣</div>
+          <div>
+            <div class="ofertas-titulo-top">NO TE PIERDAS NUESTRAS</div>
+            <div class="ofertas-titulo-main">🔥 OFERTAS</div>
+          </div>
+          <button class="ofertas-close" onclick="cerrarOfertas()" aria-label="Cerrar">✕</button>
+        </div>
+      </div>
+
+      <!-- Grid de tarjetas de oferta -->
+      <div class="ofertas-grid" id="ofertas-grid"></div>
+
+      <div class="ofertas-footer">
+        <span>💬 Consulta disponibilidad con tu asesor TAT</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== HERO ===== -->
   <section class="hero">

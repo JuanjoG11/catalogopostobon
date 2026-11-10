@@ -140,8 +140,12 @@ async function initSupaImgMap() {
     const { data: archivos } = await sbCat.storage.from(SUPA_BUCKET).list('', { limit: 1000 });
     _imgMap = {};
     (archivos || []).forEach(f => {
-      const m = f.name.match(/^img_(\d+)\.(\w+)$/);
-      if (m) _imgMap[parseInt(m[1])] = m[2];
+      // Fotos de productos: img_12345.jpg  → clave numérica
+      const mProd = f.name.match(/^img_(\d+)\.(\w+)$/);
+      if (mProd) { _imgMap[parseInt(mProd[1])] = mProd[2]; return; }
+      // Fotos de ofertas: oferta_<id>.jpg  → clave string
+      const mOfer = f.name.match(/^(oferta_.+)\.(\w+)$/);
+      if (mOfer) { _imgMap[mOfer[1]] = mOfer[2]; }
     });
 
     // Nombres y eliminados de la tabla
@@ -376,6 +380,10 @@ const init = async () => {
   initEventos();
   renderGrid();
 
+  // Inicializar badge de ofertas
+  const badge = document.getElementById('ofertas-badge');
+  if (badge) badge.textContent = OFERTAS.filter(o => o.activa).length;
+
   // Stats en header
   document.getElementById('total-productos').textContent = productos.filter(p => !getEliminados().includes(p.id)).length;
   const marcas = new Set(productos.filter(p => !getEliminados().includes(p.id)).map(p => p.marca));
@@ -383,3 +391,161 @@ const init = async () => {
 };
 
 document.addEventListener('DOMContentLoaded', init);
+
+
+// ===================================================
+// MÓDULO DE OFERTAS
+// ===================================================
+
+// Datos de ofertas — edita aquí para agregar/quitar/modificar
+const OFERTAS = [
+  {
+    id: 'oferta-andina-light',
+    productoId: 28963, // Vinculado al producto del catálogo
+    titulo: '12 UNIDADES DE\nANDINA LATA LIGHT X 473 ML',
+    gratis: 'GRATIS 2 UNIDADES',
+    precioRegular12: 30900,
+    precioRegularUnd: 2575,
+    precioOferta12: 26484,
+    precioOfertaUnd: 2207,
+    ahorro: 4416,
+    icono: '🍺',
+    activa: true,
+  },
+  {
+    id: 'oferta-speed-flow',
+    productoId: 35840, // Vinculado al producto del catálogo
+    imagenLocal: 'speed_lata.jpeg', // Forzar imagen local (ignorar Supabase)
+    titulo: '12 UNIDADES DE\nSPEED MAX FLOW 473 ML',
+    gratis: 'GRATIS 1 UNIDAD',
+    precioRegular12: 30900,
+    precioRegularUnd: 2500,
+    precioOferta12: 28512,
+    precioOfertaUnd: 2376,
+    ahorro: 2388,
+    icono: '⚡',
+    activa: true,
+  },
+  {
+    id: 'oferta-pepsi-1250',
+    productoId: 35072, // Vinculado al producto del catálogo
+    titulo: '12 UNIDADES DE\nPEPSI S.I 1250 ML PET X 12',
+    gratis: 'GRATIS 1 UNIDAD',
+    precioRegular12: 35000,
+    precioRegularUnd: 2917,
+    precioOferta12: 32304,
+    precioOfertaUnd: 2692,
+    ahorro: 2696,
+    icono: '🥤',
+    activa: true,
+  },
+];
+
+// ---- Render de tarjetas ----
+const renderOfertaCard = (oferta) => {
+  const prod = productos.find(p => p.id === oferta.productoId);
+
+  // Primero buscar foto específica de la oferta en Supabase (oferta_<id>)
+  const ofertaKey = `oferta_${oferta.id}`;
+  const ofertaExt = _imgMap[ofertaKey] || null;
+  let imgSrc;
+  if (ofertaExt) {
+    imgSrc = `${SUPA_URL_CAT}/storage/v1/object/public/${SUPA_BUCKET}/${ofertaKey}.${ofertaExt}`;
+  } else if (oferta.imagenLocal) {
+    imgSrc = `${IMG_BASE}${oferta.imagenLocal}`;
+  } else {
+    imgSrc = prod ? getImgSrc(prod) : null;
+  }
+
+  const imgHtml = imgSrc
+    ? `<img src="${imgSrc}" alt="${oferta.titulo}"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+       >
+       <div class="oferta-img-placeholder" style="display:none">${oferta.icono}</div>`
+    : `<div class="oferta-img-placeholder">${oferta.icono}</div>`;
+
+  const tituloHtml = oferta.titulo.replace('\n', '<br>');
+
+  return `
+    <div class="oferta-card">
+      <div class="oferta-img-wrap">
+        ${imgHtml}
+        <div class="oferta-gratis-badge">${oferta.gratis}</div>
+      </div>
+      <div class="oferta-desc">${tituloHtml}</div>
+      <div class="oferta-gratis-line">🎁 ${oferta.gratis}</div>
+
+      <div class="oferta-precios">
+        <div class="oferta-precio-cell">
+          <div class="oferta-precio-label regular">Precio Regular<br>(12 UND)</div>
+          <div class="oferta-precio-valor">${formatoPrecio(oferta.precioRegular12)}</div>
+        </div>
+        <div class="oferta-precio-cell">
+          <div class="oferta-precio-label regular">Precio<br>Unidad</div>
+          <div class="oferta-precio-valor">${formatoPrecio(oferta.precioRegularUnd)}</div>
+        </div>
+        <div class="oferta-precio-cell oferta">
+          <div class="oferta-precio-label red">Precio Oferta<br>(12 UND)</div>
+          <div class="oferta-precio-valor red">${formatoPrecio(oferta.precioOferta12)}</div>
+        </div>
+        <div class="oferta-precio-cell oferta">
+          <div class="oferta-precio-label red">Precio Oferta<br>Unidad</div>
+          <div class="oferta-precio-valor red">${formatoPrecio(oferta.precioOfertaUnd)}</div>
+        </div>
+      </div>
+
+      <div class="oferta-ahorro">
+        <div class="oferta-ahorro-label">¡AHORRA!</div>
+        <div class="oferta-ahorro-valor">${formatoPrecio(oferta.ahorro)}</div>
+      </div>
+    </div>
+  `;
+};
+
+const renderOfertas = () => {
+  const grid = document.getElementById('ofertas-grid');
+  if (!grid) return;
+
+  const activas = OFERTAS.filter(o => o.activa);
+
+  // Actualizar badge del botón
+  const badge = document.getElementById('ofertas-badge');
+  if (badge) badge.textContent = activas.length;
+
+  if (activas.length === 0) {
+    grid.innerHTML = `
+      <div class="ofertas-empty">
+        <div class="ofertas-empty-icon">🏷️</div>
+        <div class="ofertas-empty-text">No hay ofertas disponibles en este momento.</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = activas.map(o => renderOfertaCard(o)).join('');
+};
+
+// ---- Abrir / Cerrar ----
+const abrirOfertas = () => {
+  renderOfertas();
+  document.getElementById('ofertas-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+const cerrarOfertas = (e) => {
+  // Si se pasa un evento y el click NO fue sobre el overlay directamente, ignorar
+  if (e && e.target && e.target !== document.getElementById('ofertas-overlay')) return;
+  document.getElementById('ofertas-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+// Tecla ESC también cierra las ofertas
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('ofertas-overlay');
+    if (overlay && overlay.classList.contains('open')) {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+});
