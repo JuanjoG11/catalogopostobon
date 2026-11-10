@@ -207,7 +207,7 @@ const renderCard = (prod, delay = 0) => {
       <div class="card-footer">
         <div>
           <div class="card-precio">${formatoPrecio(prod.precio)}</div>
-          <div class="card-precio-label">Por paca</div>
+          <div class="card-precio-label">Por unidad</div>
         </div>
         <div style="text-align:right">
           <div class="card-id">#${prod.id}</div>
@@ -265,7 +265,7 @@ const abrirModal = (id) => {
   document.getElementById('modal-nombre').textContent = getNombreProd(prod);
   document.getElementById('modal-presentacion').textContent = prod.presentacion;
   document.getElementById('modal-precio').textContent = formatoPrecio(prod.precio);
-  document.getElementById('modal-unidades').textContent = `${prod.unidades} unidades por paca`;
+  document.getElementById('modal-unidades').textContent = `${prod.unidades} unidades por caja`;
   document.getElementById('modal-marca').textContent = prod.marca;
   document.getElementById('modal-sabor').textContent = prod.sabor;
   document.getElementById('modal-embalaje').textContent = prod.embalaje;
