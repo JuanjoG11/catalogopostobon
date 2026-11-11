@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Portafolio Físico — Postobón</title>
+<script src="assets/js/supabase.min.js"></script>
+<style>
+/* ============================================================
+   RESET & VARIABLES
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --rojo:      #E8192C;
+  --rojo-dark: #B01020;
+  --amarillo:  #FFD000;
+  --azul:      #003F8C;
+  --verde:     #00843D;
+  --naranja:   #E8601C;
+  --morado:    #6B2D8B;
+  --celeste:   #0099D6;
+  --cafe:      #5c3317;
+  --gris:      #3A3A3A;
+  --gris-light:#F4F4F4;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #ccc;
+  color: var(--gris);
+}
+
+/* ============================================================
+   HINT DE IMPRESIÓN
+   ============================================================ */
+.print-hint {
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 10pt;
+  color: #555;
+  background: #fffbe6;
+  border: 1px solid var(--amarillo);
+  margin: 10px auto;
+  width: 279mm;
+  border-radius: 6px;
+}
+.print-hint strong { color: var(--rojo); }
+
+/* ============================================================
+   PÁGINA — tamaño carta horizontal
+   ============================================================ */
+.page {
+  width: 279mm;
+  min-height: 216mm;
+  background: white;
+  margin: 8mm auto;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  page-break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+}
+
+/* ============================================================
+   PORTADA
+   ============================================================ */
+.portada {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 216mm;
+  position: relative;
+  overflow: hidden;
+}
+.portada-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(140deg, #E8192C 0%, #9a0018 55%, #600010 100%);
+}
+.portada-circles {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 15% 85%, rgba(255,208,0,.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.10) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.04) 0%, transparent 60%);
+}
+.portada-wave {
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 50mm;
+  background: rgba(0,0,0,.15);
+  border-radius: 100% 100% 0 0;
+}
+.portada-wave2 {
+  position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 32mm;
+  background: rgba(255,255,255,.07);
+  border-radius: 100% 100% 0 0;
+}
+.portada-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 10px; text-align: center;
+  padding: 20mm 20mm 24mm;
+}
+.portada-logo img {
+  max-height: 28mm; max-width: 90mm;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 4px 16px rgba(0,0,0,.4));
+}
+.portada-line {
+  width: 70mm; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amarillo), transparent);
+  margin: 2px 0;
+}
+.portada-titulo {
+  color: white;
+  font-size: 30pt; font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+  text-shadow: 0 3px 14px rgba(0,0,0,.5);
+  line-height: 1.1;
+}
+.portada-subtitulo {
+  color: var(--amarillo);
+  font-size: 13pt; font-weight: 700;
+  letter-spacing: 5px; text-transform: uppercase;
+}
+.portada-year {
+  color: rgba(255,255,255,.65);
+  font-size: 10pt; letter-spacing: 7px;
+}
+.portada-cats {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  justify-content: center; max-width: 190mm; margin-top: 6px;
+}
+.portada-cat-chip {
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.38);
+  color: white; border-radius: 20px;
+  padding: 3px 12px; font-size: 7.5pt; font-weight: 600;
+}
+
+/* ============================================================
+   SEPARADOR DE CATEGORÍA
+   ============================================================ */
+.separator-page {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 216mm; position: relative; overflow: hidden;
+}
+.sep-bg { position: absolute; inset: 0; }
+.sep-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px; text-align: center;
+}
+.sep-icon { font-size: 64pt; line-height: 1; }
+.sep-titulo {
+  font-size: 38pt; font-weight: 900; color: white;
+  text-transform: uppercase; letter-spacing: 3px;
+  text-shadow: 0 3px 18px rgba(0,0,0,.35);
+}
+.sep-sub {
+  font-size: 11pt; color: rgba(255,255,255,.8);
+  letter-spacing: 5px; text-transform: uppercase;
+}
+.sep-marcas {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center; margin-top: 8px;
+}
+.sep-marca-chip {
+  background: rgba(255,255,255,.22);
+  border: 1.5px solid rgba(255,255,255,.5);
+  color: white; border-radius: 20px;
+  padding: 4px 16px; font-size: 9pt; font-weight: 700;
+}
+
+/* ============================================================
+   ENCABEZADO DE PÁGINA
+   ============================================================ */
+.page-header {
+  display: flex; align-items: stretch;
+  min-height: 15mm; position: relative; flex-shrink: 0;
+}
+.hdr-cat {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px; color: white;
+  font-weight: 800; font-size: 10.5pt;
+  letter-spacing: .5px; text-transform: uppercase;
+  min-width: 50mm;
+}
+.hdr-cat .ico { font-size: 20px; }
+.hdr-brand {
+  flex: 1; display: flex; align-items: center;
+  padding: 0 16px;
+  font-size: 20pt; font-weight: 900;
+  letter-spacing: -.5px; color: white;
+}
+.hdr-badge {
+  display: flex; align-items: center;
+  background: rgba(0,0,0,.2);
+  color: white; font-size: 7pt; font-weight: 800;
+  padding: 0 12px; letter-spacing: 1px; text-transform: uppercase;
+}
+.hdr-logo {
+  display: flex; align-items: center;
+  background: white; padding: 0 12px;
+  min-width: 34mm; justify-content: center;
+}
+.hdr-logo img {
+  max-height: 10mm; max-width: 30mm; object-fit: contain;
+}
+
+/* ============================================================
+   CUERPO
+   ============================================================ */
+.page-body {
+  flex: 1; display: flex; overflow: hidden;
+}
+
+/* Columna izquierda: infaltables */
+.col-inf {
+  width: 54mm; flex-shrink: 0;
+  background: var(--gris-light);
+  border-right: 2px solid #ddd;
+  padding: 8px 7px;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow: hidden;
+}
+.inf-title {
+  color: white; text-align: center;
+  font-weight: 800; font-size: 8pt;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  border-radius: 20px; padding: 3px 0; margin-bottom: 1px;
+}
+.inf-card {
+  background: white; border-radius: 8px;
+  padding: 5px 6px 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  position: relative;
+}
+.inf-card img {
+  width: 36mm; height: 32mm;
+  object-fit: contain;
+}
+.inf-card .ico-fb {
+  width: 36mm; height: 32mm;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; background: #f5f5f5; border-radius: 5px;
+}
+.inf-nombre {
+  font-size: 7.5pt; font-weight: 700;
+  text-align: center; line-height: 1.25; color: #111;
+}
+.inf-pres  { font-size: 6.5pt; font-weight: 600; color: #555; text-align: center; }
+.inf-cod   { font-size: 6pt;   color: #888; text-align: center; font-family: monospace; letter-spacing: .3px; }
+.inf-precio{ font-size: 8pt;   font-weight: 900; color: var(--rojo); }
+.inf-top {
+  position: absolute; top: 3px; right: 3px;
+  color: white; font-size: 5pt; font-weight: 800;
+  padding: 1px 5px; border-radius: 3px;
+  letter-spacing: .5px;
+}
+
+/* Columna derecha: grid */
+.col-prod {
+  flex: 1; padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  overflow: hidden;
+}
+.prod-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+.prod-card {
+  background: white;
+  border: 1.5px solid #ebebeb;
+  border-radius: 10px; padding: 7px 5px 5px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.08);
+  position: relative; overflow: hidden;
+}
+.prod-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+}
+.prod-card img {
+  width: 100%; height: 28mm; object-fit: contain;
+}
+.prod-card .ico-fb {
+  width: 100%; height: 28mm;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; background: #f8f8f8; border-radius: 5px;
+}
+.prod-nombre { font-size: 7pt; font-weight: 700; text-align: center; line-height: 1.25; color: #111; }
+.prod-pres   { font-size: 6.5pt; font-weight: 600; color: #555; text-align: center; line-height: 1.3; }
+.prod-cod    { font-size: 6pt;   color: #888; text-align: center; font-family: monospace; letter-spacing: .3px; }
+.prod-precio { font-size: 8.5pt; font-weight: 900; color: var(--rojo); margin-top: 2px; }
+.prod-unid   { font-size: 5.5pt; color: #aaa; }
+
+/* ============================================================
+   PIE
+   ============================================================ */
+.page-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  min-height: 7mm; border-top: 1.5px solid #eee;
+  padding: 0 14px; background: var(--gris-light);
+  flex-shrink: 0;
+}
+.footer-label { font-size: 5.5pt; font-weight: 700; color: #666; letter-spacing: .5px; text-transform: uppercase; }
+.footer-chips { display: flex; align-items: center; gap: 6px; }
+.f-chip {
+  color: white; border-radius: 10px;
+  padding: 1px 7px; font-weight: 700; font-size: 5.5pt;
+}
+
+/* ============================================================
+   COLORES POR CATEGORÍA
+   ============================================================ */
+.cat-gaseosa    .hdr-cat, .cat-gaseosa    .hdr-brand { background: linear-gradient(90deg,#E8192C,#ff4d60); }
+.cat-gaseosa    .inf-title, .cat-gaseosa    .inf-top  { background: var(--rojo); }
+.cat-gaseosa    .prod-card::before                    { background: var(--rojo); }
+.cat-gaseosa    .sep-bg { background: linear-gradient(135deg,#E8192C,#9a0018); }
+
+.cat-jugos      .hdr-cat, .cat-jugos      .hdr-brand { background: linear-gradient(90deg,#E8601C,#ff7a3f); }
+.cat-jugos      .inf-title, .cat-jugos      .inf-top  { background: var(--naranja); }
+.cat-jugos      .prod-card::before                    { background: var(--naranja); }
+.cat-jugos      .sep-bg { background: linear-gradient(135deg,#E8601C,#a03800); }
+
+.cat-hidratantes .hdr-cat, .cat-hidratantes .hdr-brand { background: linear-gradient(90deg,#0099D6,#33b8e8); }
+.cat-hidratantes .inf-title, .cat-hidratantes .inf-top  { background: var(--celeste); }
+.cat-hidratantes .prod-card::before                     { background: var(--celeste); }
+.cat-hidratantes .sep-bg { background: linear-gradient(135deg,#0099D6,#005f90); }
+
+.cat-energizantes .hdr-cat, .cat-energizantes .hdr-brand { background: linear-gradient(90deg,#1a1a2e,#0f3460); }
+.cat-energizantes .inf-title, .cat-energizantes .inf-top  { background: #1a1a2e; }
+.cat-energizantes .prod-card::before                      { background: var(--amarillo); }
+.cat-energizantes .sep-bg { background: linear-gradient(135deg,#1a1a2e,#0f3460); }
+
+.cat-aguas      .hdr-cat, .cat-aguas      .hdr-brand { background: linear-gradient(90deg,#003F8C,#005bbf); }
+.cat-aguas      .inf-title, .cat-aguas      .inf-top  { background: var(--azul); }
+.cat-aguas      .prod-card::before                    { background: var(--azul); }
+.cat-aguas      .sep-bg { background: linear-gradient(135deg,#003F8C,#001f5c); }
+
+.cat-te         .hdr-cat, .cat-te         .hdr-brand { background: linear-gradient(90deg,#00843D,#00a84e); }
+.cat-te         .inf-title, .cat-te         .inf-top  { background: var(--verde); }
+.cat-te         .prod-card::before                    { background: var(--verde); }
+.cat-te         .sep-bg { background: linear-gradient(135deg,#00843D,#004d23); }
+
+.cat-cerveza    .hdr-cat, .cat-cerveza    .hdr-brand { background: linear-gradient(90deg,#c17d00,#e09400); }
+.cat-cerveza    .inf-title, .cat-cerveza    .inf-top  { background: #c17d00; }
+.cat-cerveza    .prod-card::before                    { background: var(--amarillo); }
+.cat-cerveza    .sep-bg { background: linear-gradient(135deg,#c17d00,#6e4600); }
+
+.cat-alimentos  .hdr-cat, .cat-alimentos  .hdr-brand { background: linear-gradient(90deg,#6B2D8B,#8c3bae); }
+.cat-alimentos  .inf-title, .cat-alimentos  .inf-top  { background: var(--morado); }
+.cat-alimentos  .prod-card::before                    { background: var(--morado); }
+.cat-alimentos  .sep-bg { background: linear-gradient(135deg,#6B2D8B,#3a1050); }
+
+.cat-cafe       .hdr-cat, .cat-cafe       .hdr-brand { background: linear-gradient(90deg,#5c3317,#7a4520); }
+.cat-cafe       .inf-title, .cat-cafe       .inf-top  { background: var(--cafe); }
+.cat-cafe       .prod-card::before                    { background: #c17d00; }
+.cat-cafe       .sep-bg { background: linear-gradient(135deg,#5c3317,#2b1508); }
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  body { background: none; }
+  .print-hint { display: none; }
+  .page, .separator-page { margin: 0; box-shadow: none; }
+  @page { size: Letter landscape; margin: 0; }
+}
+
+/* Spinner de carga */
+#loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #E8192C;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+}
+#loading-screen img { max-height: 30mm; filter: brightness(0) invert(1); }
+#loading-screen .msg { color: white; font-size: 13pt; font-weight: 600; letter-spacing: 2px; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid rgba(255,255,255,.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE CARGA -->
+<div id="loading-screen">
+  <img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'">
+  <div class="spinner"></div>
+  <div class="msg">Cargando imágenes...</div>
+</div>
+
+<div id="portafolio-container" style="display:none">
+
+<div class="print-hint">
+  💡 Para generar el PDF: <strong>Ctrl+P → Guardar como PDF</strong> · Tamaño: Carta · Orientación: Horizontal · Márgenes: Ninguno · ✅ Activar "Gráficos de fondo"
+</div>
+
+<!-- ==================== PORTADA ==================== -->
+<div class="page portada">
+  <div class="portada-bg"></div>
+  <div class="portada-circles"></div>
+  <div class="portada-wave"></div>
+  <div class="portada-wave2"></div>
+  <div class="portada-content">
+    <div class="portada-logo">
+      <img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'">
+    </div>
+    <div class="portada-line"></div>
+    <div class="portada-titulo">Portafolio de<br>Productos</div>
+    <div class="portada-subtitulo">Catálogo de Referencias</div>
+    <div class="portada-year">2025 · 2026</div>
+    <div class="portada-line"></div>
+    <div class="portada-cats">
+      <span class="portada-cat-chip">🥤 Gaseosas</span>
+      <span class="portada-cat-chip">🍊 Jugos</span>
+      <span class="portada-cat-chip">💧 Hidratantes</span>
+      <span class="portada-cat-chip">⚡ Energizantes</span>
+      <span class="portada-cat-chip">🫧 Aguas</span>
+      <span class="portada-cat-chip">🍵 Tés</span>
+      <span class="portada-cat-chip">🍺 Cervezas</span>
+      <span class="portada-cat-chip">🛒 Alimentos</span>
+      <span class="portada-cat-chip">☕ Café</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CONTENIDO DINÁMICO ==================== -->
+<div id="dynamic-content"></div>
+
+<!-- ==================== CONTRAPORTADA ==================== -->
+<div class="page portada" style="">
+  <div class="portada-bg" style="background: linear-gradient(140deg,#003F8C 0%,#001f5c 60%,#000d30 100%)"></div>
+  <div class="portada-circles"></div>
+  <div class="portada-wave"></div>
+  <div class="portada-wave2"></div>
+  <div class="portada-content">
+    <div class="portada-logo">
+      <img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'">
+    </div>
+    <div class="portada-line" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)"></div>
+    <div class="portada-titulo" style="font-size:20pt">¡Gracias por tu preferencia!</div>
+    <div class="portada-subtitulo" style="font-size:9pt">Portafolio vigente · Consultar disponibilidad de producto</div>
+    <div class="portada-year">Postobón S.A. · Colombia</div>
+  </div>
+</div>
+
+</div><!-- /portafolio-container -->
+
+<script>
+// ============================================================
+//  CONFIG SUPABASE (mismo que app.js)
+// ============================================================
+const SUPA_URL    = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
+const SUPA_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
+const BUCKET      = 'productos';
+const IMG_LOCAL   = 'assets/img/productos/';
+
+// ============================================================
+//  DATOS DE PRODUCTOS (igual que productos.js)
+// ============================================================
+const PRODUCTOS = [
+  // ALIMENTOS
+  { id:28769, nombre:"LOMOS ATÚN ACEITE BARY",    pres:"Lata 140g x48",       marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439522797", precio:5610,  img:"bary_atun_bot.jpeg",    icon:"🥫" },
+  { id:28770, nombre:"LOMOS ATÚN AGUA BARY",      pres:"Lata 140g x48",       marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439273750", precio:5610,  img:"bary_atun2.jpeg",        icon:"🥫" },
+  { id:31969, nombre:"MAYONESA BARY 80G",         pres:"Display 12×12 und",   marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439709976", precio:14400, img:"bary_mayo1.jpeg",        icon:"🫙" },
+  { id:22208, nombre:"TOMATE BARY 170G",          pres:"Doy Pack x26",        marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439339715", precio:2184,  img:"bary_tomate1.jpeg",      icon:"🍅" },
+  { id:26370, nombre:"TOMATE BARY 110G",          pres:"Doy Pack SV x24",     marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439417062", precio:1680,  img:"bary_tomate1.jpeg",      icon:"🍅" },
+  { id:31966, nombre:"TOMATE BARY 80G",           pres:"Display 12×12 und",   marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439276645", precio:14400, img:"bary_tomate1.jpeg",      icon:"🍅" },
+  { id:35513, nombre:"MAYONESA BARY 110G",        pres:"Doy Pack SV x24",     marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439474522", precio:1680,  img:"bary_mayo1.jpeg",        icon:"🫙" },
+  { id:35129, nombre:"BOCADILLO BIHAO 40G",       pres:"Bol x25 Cx12",        marca:"DOÑA GUAYABA",cat:"ALIMENTOS",    cod:"7702509641397", precio:16000, img:"bary_p1.jpeg",           icon:"🍐" },
+  // CERVEZA
+  { id:34074, nombre:"MÍTICA BOT NR 300",         pres:"300ml Botella NR 4×6",marca:"MITICA",      cat:"CERVEZA",      cod:"7707430879796", precio:14150, img:"andina_lata_310.jpeg",   icon:"⭐" },
+  { id:34007, nombre:"MÍTICA LATA 310",           pres:"310ml Lata 4×6",      marca:"MITICA",      cat:"CERVEZA",      cod:"7707430876092", precio:16275, img:"andina_lata_310.jpeg",   icon:"⭐" },
+  { id:28963, nombre:"ANDINA LIGHT LATA 473",     pres:"473ml Lata x12",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430877501", precio:2575,  img:"andina_light_lata1.jpeg",icon:"✨" },
+  { id:32673, nombre:"ANDINA REFAJO LATA 310",    pres:"310ml Lata 4×6",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430879130", precio:13000, img:"andina_refajo_lata.jpeg",icon:"🍺" },
+  { id:29618, nombre:"HEINEKEN LATA 310",         pres:"310ml Lata 4×6",      marca:"HEINEKEN",    cat:"CERVEZA",      cod:"7707430870113", precio:18450, img:"heineken_lata_310.jpeg", icon:"🍺" },
+  { id:29624, nombre:"ANDINA LATA 310",           pres:"310ml Lata 4×6",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430879451", precio:13000, img:"andina_lata_310.jpeg",   icon:"🍺" },
+  { id:32804, nombre:"ANDINA LATA 473",           pres:"473ml Lata x12",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430876641", precio:2817,  img:"andina_lata_473.jpeg",   icon:"🍺" },
+  { id:29628, nombre:"TRES CORD. ROSÉ NR 300",    pres:"300ml Bot NR 4×6",    marca:"TRES CORDILLERAS",cat:"CERVEZA",  cod:"7707430872162", precio:22325, img:"tres_cord_rosada.jpeg",  icon:"🌸" },
+  { id:28624, nombre:"TRES CORD. ROSÉ LATA 269",  pres:"269ml Lata 4×6",      marca:"TRES CORDILLERAS",cat:"CERVEZA",  cod:"7707430873978", precio:18600, img:"tres_cord_rosada.jpeg",  icon:"🌸" },
+  { id:28621, nombre:"SOL BOT NR 250",            pres:"250ml Botella NR 4×6",marca:"SOL",         cat:"CERVEZA",      cod:"7707430876078", precio:13000, img:"sol_bnr_250.jpeg",        icon:"☀️" },
+  { id:27466, nombre:"NATUMALTA 1000ml",          pres:"1000ml PET x8",       marca:"NATUMALTA",   cat:"CERVEZA",      cod:"7707430875552", precio:3375,  img:"natumalta_bot1.jpeg",    icon:"🌾" },
+  // HIDRATANTES
+  { id:34414, nombre:"COCO GATORLIT 620ml",       pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192521747", precio:4000,  img:"gatorade_bot3.png",      icon:"🥥" },
+  { id:34379, nombre:"FRESA KIWI GATORLIT 620ml", pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192046561", precio:4000,  img:"gatorade_bot1.png",      icon:"🍓" },
+  { id:34380, nombre:"MORAS GATORLIT 620ml",      pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192902263", precio:4000,  img:"gatorade_bot2.png",      icon:"🫐" },
+  { id:34461, nombre:"UVA GATORLIT 620ml",        pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192308256", precio:4000,  img:"gatorade_bot1.png",      icon:"🍇" },
+  { id:32080, nombre:"BLUE ICE GATORADE 500ml",   pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192736455", precio:3250,  img:"gatorade_bot2.png",      icon:"🧊" },
+  { id:23684, nombre:"MANDARINA GATORADE 500ml",  pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192218050", precio:3250,  img:"gatorade_p2.jpeg",       icon:"🍊" },
+  { id:23569, nombre:"MARACUYA GATORADE 500ml",   pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192224051", precio:3250,  img:"gatorade_p2.jpeg",       icon:"🌺" },
+  { id:23686, nombre:"FRUTAS TROP. SQUASH 500ml", pres:"500ml PET x12",       marca:"SQUASH",      cat:"HIDRATANTES",  cod:"7702090029741", precio:2083,  img:"squash_bot1.jpeg",       icon:"🌴" },
+  // BEBIDA DE TE
+  { id:23378, nombre:"DURAZNO MR TEA 1500ml",     pres:"1500ml PET x6",       marca:"MR. TEA",     cat:"BEBIDA DE TE", cod:"7702090031294", precio:4067,  img:"mrte_bot_grande.jpeg",   icon:"🍑" },
+  { id:23379, nombre:"LIMON MR TEA 1500ml",       pres:"1500ml PET x6",       marca:"MR. TEA",     cat:"BEBIDA DE TE", cod:"7702090030839", precio:4067,  img:"mrte_bot2.jpeg",         icon:"🍋" },
+  // AGUAS
+  { id:23599, nombre:"AGUA CRISTAL 1000ml",       pres:"1000ml PET x12",      marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090042054", precio:1667,  img:"agua_cristal_1000ml.jpeg",icon:"💧" },
+  { id:23583, nombre:"CRISTAL CON GAS 250ml",     pres:"250ml PET x12",       marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090037784", precio:667,   img:"agua_cristal_gas.jpeg",  icon:"🫧" },
+  { id:23548, nombre:"CRISTAL CON GAS 600ml",     pres:"600ml PET x24",       marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090023008", precio:1500,  img:"agua_cristal_gas.jpeg",  icon:"🫧" },
+  // GASEOSA
+  { id:23214, nombre:"COLOMBIANA 400ml",          pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151700874", precio:2083,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
+  { id:23216, nombre:"MANZANA POSTOBON 400ml",    pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090031928", precio:2083,  img:"gaseosa_p4.png",         icon:"🍎" },
+  { id:31947, nombre:"PEPSI S.I. 400ml",          pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702192741749", precio:2083,  img:"gaseosa_p5.png",         icon:"🥤" },
+  { id:23215, nombre:"UVA POSTOBON 400ml",        pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090031942", precio:2083,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
+  { id:34599, nombre:"COLOMBIANA 1750ml",         pres:"1750ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151782061", precio:3750,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
+  { id:34793, nombre:"COLOMBIANA 1250ml",         pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151724061", precio:2917,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
+  { id:34786, nombre:"MANZANA POSTOBON 1250ml",   pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090568080", precio:2917,  img:"gaseosa_p4.png",         icon:"🍎" },
+  { id:35072, nombre:"PEPSI S.I. 1250ml",         pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702192239901", precio:2917,  img:"gaseosa_p5.png",         icon:"🥤" },
+  { id:34794, nombre:"UVA POSTOBON 1250ml",       pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090451498", precio:2917,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
+  { id:34785, nombre:"UVA POSTOBON 1750ml",       pres:"1750ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090719192", precio:3750,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
+  { id:23197, nombre:"BRETAÑA 300ml",             pres:"300ml Vidrio NR x24", marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090020847", precio:2288,  img:"gaseosa_bretana_vidrio.jpeg",icon:"🍾" },
+  // ENERGIZANTES
+  { id:29076, nombre:"SPEED MAX 310ml",           pres:"310ml Lata x24",      marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090071849", precio:1667,  img:"speed_bot3.jpeg",        icon:"⚡" },
+  { id:17186, nombre:"RED BULL ORIGINAL 250ml",   pres:"250ml Lata x4",       marca:"RED BULL",    cat:"ENERGIZANTES", cod:"9002490100490", precio:6388,  img:"speed_bot6.jpeg",        icon:"🐂" },
+  { id:25131, nombre:"RED BULL SANDÍA 250ml",     pres:"250ml Lata x4",       marca:"RED BULL",    cat:"ENERGIZANTES", cod:"9002490251567", precio:6388,  img:"speed_bot7.jpeg",        icon:"🍉" },
+  { id:35840, nombre:"SPEED MAX FLOW 473ml",      pres:"473ml Lata x12",      marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090855951", precio:2500,  img:"speed_bot2.jpeg",        icon:"🚀" },
+  { id:23649, nombre:"SPEED MAX 250ml",           pres:"250ml PET x12",       marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090039436", precio:1250,  img:"speed_bot3.jpeg",        icon:"⚡" },
+  // JUGOS
+  { id:23273, nombre:"FRUTAS TROP. HIT 1000ml",   pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133055053", precio:3817,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
+  { id:23229, nombre:"FRUTAS TROP. HIT 200ml",    pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133025919", precio:1167,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
+  { id:23242, nombre:"FRUTAS TROP. HIT 500ml",    pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133052670", precio:2500,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
+  { id:23275, nombre:"MANGO HIT 1000ml",          pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133033730", precio:3817,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
+  { id:23235, nombre:"MANGO HIT 200ml",           pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133098029", precio:1167,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
+  { id:23244, nombre:"MANGO HIT 500ml",           pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133062471", precio:2500,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
+  { id:23276, nombre:"MORA HIT 1000ml",           pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133095097", precio:3817,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
+  { id:23237, nombre:"MORA HIT 200ml",            pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133042039", precio:1167,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
+  { id:23245, nombre:"MORA HIT 500ml",            pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133083216", precio:2500,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
+  { id:23274, nombre:"NARANJA PIÑA HIT 1000ml",   pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133065090", precio:3817,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
+  { id:23236, nombre:"NARANJA PIÑA HIT 200ml",    pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133075655", precio:1167,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
+  { id:23243, nombre:"NARANJA PIÑA HIT 500ml",    pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133044033", precio:2333,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
+  // CAFÉ
+  { id:32720, nombre:"TOSTAO SELECTO 110G",       pres:"Bolsa x72",           marca:"TOSTADO",     cat:"CAFÉ",         cod:"7708024204208", precio:5727,  img:"bary_tostao2.png",       icon:"☕" },
+  { id:32811, nombre:"TOSTAO SELECTO 454G",       pres:"Bolsa x18",           marca:"TOSTADO",     cat:"CAFÉ",         cod:"7708024204611", precio:21250, img:"bary_tostao2.png",       icon:"🫘" },
+];
+
+// ============================================================
+//  ESTRUCTURA DEL CATÁLOGO (secciones en orden)
+// ============================================================
+const SECCIONES = [
+  {
+    cat: "GASEOSA", catClass: "cat-gaseosa", icon: "🥤", label: "Gaseosas",
+    marcas: ["POSTOBON"],
+    paginas: [
+      { brand: "Postobón", ids: [23214,23216,31947,23215,23197,34599,34793,34786,35072,34794,34785],
+        infaltables: [23214,23216,31947] }
+    ]
+  },
+  {
+    cat: "JUGOS", catClass: "cat-jugos", icon: "🍊", label: "Jugos",
+    marcas: ["HIT"],
+    paginas: [
+      { brand: "Hit", ids: [23229,23242,23273,23235,23244,23275,23237,23245,23276,23236,23243,23274],
+        infaltables: [23229,23235,23237] }
+    ]
+  },
+  {
+    cat: "HIDRATANTES", catClass: "cat-hidratantes", icon: "💧", label: "Hidratantes",
+    marcas: ["GATORADE","SQUASH"],
+    paginas: [
+      { brand: "Gatorade · Squash", ids: [34379,34380,34414,34461,32080,23684,23569,23686],
+        infaltables: [34379,34380,23686] }
+    ]
+  },
+  {
+    cat: "ENERGIZANTES", catClass: "cat-energizantes", icon: "⚡", label: "Energizantes",
+    marcas: ["SPEED","RED BULL"],
+    paginas: [
+      { brand: "Speed · Red Bull", ids: [29076,35840,23649,17186,25131],
+        infaltables: [29076,35840,17186] }
+    ]
+  },
+  {
+    cat: "AGUAS", catClass: "cat-aguas", icon: "🫧", label: "Aguas",
+    marcas: ["CRISTAL"],
+    paginas: [
+      { brand: "Cristal", ids: [23599,23583,23548],
+        infaltables: [23599,23548] }
+    ]
+  },
+  {
+    cat: "BEBIDA DE TE", catClass: "cat-te", icon: "🍵", label: "Bebidas de Té",
+    marcas: ["MR. TEA"],
+    paginas: [
+      { brand: "Mr. Tea", ids: [23378,23379],
+        infaltables: [23378,23379] }
+    ]
+  },
+  {
+    cat: "CERVEZA", catClass: "cat-cerveza", icon: "🍺", label: "Cervezas",
+    marcas: ["ANDINA","HEINEKEN","MÍTICA","TRES CORDILLERAS","SOL","NATUMALTA"],
+    paginas: [
+      { brand: "Andina · Natumalta", ids: [29624,32804,28963,32673,27466],
+        infaltables: [29624,28963,32673] },
+      { brand: "Heineken · Mítica · Tres Cordilleras · Sol", ids: [29618,34007,34074,29628,28624,28621],
+        infaltables: [29618,29628] }
+    ]
+  },
+  {
+    cat: "ALIMENTOS", catClass: "cat-alimentos", icon: "🛒", label: "Alimentos",
+    marcas: ["BARY","DOÑA GUAYABA"],
+    paginas: [
+      { brand: "Bary · Doña Guayaba", ids: [28769,28770,31969,35513,22208,26370,31966,35129],
+        infaltables: [28769,22208,35513] }
+    ]
+  },
+  {
+    cat: "CAFÉ", catClass: "cat-cafe", icon: "☕", label: "Café",
+    marcas: ["TOSTAO"],
+    paginas: [
+      { brand: "Tostao", ids: [32720,32811],
+        infaltables: [32720,32811] }
+    ]
+  },
+];
+
+// ============================================================
+//  HELPERS
+// ============================================================
+const fmt = (n) =>
+  '$' + new Intl.NumberFormat('es-CO', {minimumFractionDigits:0}).format(n);
+
+let _imgMap = {};
+
+function imgSrc(prod) {
+  const ext = _imgMap[prod.id];
+  if (ext) return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${prod.id}.${ext}`;
+  if (prod.img) return `${IMG_LOCAL}${prod.img}`;
+  return null;
+}
+
+function imgTag(prod, w, h) {
+  const src = imgSrc(prod);
+  const style = `width:${w};height:${h};object-fit:contain;`;
+  if (src) {
+    return `<img src="${src}" alt="${prod.nombre}" style="${style}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="ico-fb" style="width:${w};height:${h};display:none">${prod.icon}</div>`;
+  }
+  return `<div class="ico-fb" style="width:${w};height:${h}">${prod.icon}</div>`;
+}
+
+function byId(id) { return PRODUCTOS.find(p => p.id === id); }
+
+// ============================================================
+//  RENDER FUNCIONES
+// ============================================================
+function renderSeparador(sec) {
+  return `
+<div class="page separator-page ${sec.catClass}">
+  <div class="sep-bg"></div>
+  <div class="sep-content">
+    <div class="sep-icon">${sec.icon}</div>
+    <div class="sep-titulo">${sec.label}</div>
+    <div class="sep-sub">Portafolio de Referencias</div>
+    <div class="sep-marcas">
+      ${sec.marcas.map(m => `<span class="sep-marca-chip">${m}</span>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function renderInfCard(prod) {
+  return `
+<div class="inf-card">
+  <span class="inf-top" style="background:var(--rojo)">★</span>
+  ${imgTag(prod, '36mm', '32mm')}
+  <div class="inf-nombre">${prod.nombre}</div>
+  <div class="inf-pres">${prod.pres}</div>
+  <div class="inf-cod">${prod.cod}</div>
+  <div class="inf-precio">${fmt(prod.precio)}</div>
+</div>`;
+}
+
+function renderProdCard(prod) {
+  return `
+<div class="prod-card">
+  ${imgTag(prod, '100%', '28mm')}
+  <div class="prod-nombre">${prod.nombre}</div>
+  <div class="prod-pres">${prod.pres}</div>
+  <div class="prod-cod">${prod.cod}</div>
+  <div class="prod-precio">${fmt(prod.precio)}</div>
+</div>`;
+}
+
+function renderPagina(sec, pag) {
+  const prods      = pag.ids.map(byId).filter(Boolean);
+  const infaltables = pag.infaltables.map(byId).filter(Boolean);
+
+  return `
+<div class="page ${sec.catClass}">
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="hdr-cat"><span class="ico">${sec.icon}</span>${sec.label.toUpperCase()}</div>
+    <div class="hdr-brand">${pag.brand}</div>
+    <div class="hdr-badge">POSTOBÓN S.A.</div>
+    <div class="hdr-logo"><img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'"></div>
+  </div>
+  <!-- BODY -->
+  <div class="page-body">
+    <!-- INFALTABLES -->
+    <div class="col-inf">
+      <div class="inf-title">★ Infaltables</div>
+      ${infaltables.map(p => renderInfCard(p)).join('')}
+    </div>
+    <!-- PRODUCTOS -->
+    <div class="col-prod">
+      <div class="prod-grid">
+        ${prods.map(p => renderProdCard(p)).join('')}
+      </div>
+    </div>
+  </div>
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-label">Tipología de Tienda</div>
+    <div class="footer-chips">
+      <span class="f-chip" style="background:var(--rojo)">★ Infaltable</span>
+      <span class="f-chip" style="background:var(--verde)">Core</span>
+      <span class="f-chip" style="background:var(--azul)">Complementario</span>
+    </div>
+  </div>
+</div>`;
+}
+
+// ============================================================
+//  INIT: cargar mapa de imágenes y renderizar
+// ============================================================
+async function init() {
+  try {
+    const sbClient = supabase.createClient(SUPA_URL, SUPA_ANON);
+    const { data: archivos } = await sbClient.storage.from(BUCKET).list('', { limit: 2000 });
+    _imgMap = {};
+    (archivos || []).forEach(f => {
+      const m = f.name.match(/^img_(\d+)\.(\w+)$/);
+      if (m) _imgMap[parseInt(m[1])] = m[2];
+    });
+  } catch(e) {
+    console.warn('Supabase no disponible, usando imágenes locales:', e);
+  }
+
+  // Generar HTML
+  let html = '';
+  for (const sec of SECCIONES) {
+    html += renderSeparador(sec);
+    for (const pag of sec.paginas) {
+      html += renderPagina(sec, pag);
+    }
+  }
+
+  document.getElementById('dynamic-content').innerHTML = html;
+
+  // Mostrar portafolio y ocultar spinner
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('portafolio-container').style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
