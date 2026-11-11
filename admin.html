@@ -75,6 +75,59 @@
     .btn-add { background: #1d7a40; color: #a0ffbf; border: 1px solid #205a20; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .btn-add:hover { background: #25a050; color: #fff; }
 
+    /* ══════ SECCIÓN PORTAFOLIO ══════ */
+    .port-section { padding: 20px 24px; border-bottom: 2px solid #0d2a3a; background: #0a0f18; }
+    .port-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .port-section h2 { font-size: 16px; font-weight: 800; color: #5bc8ff; display: flex; align-items: center; gap: 8px; }
+    .port-section > p { font-size: 11px; color: #445; margin-bottom: 14px; }
+    .port-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .port-tab { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid #1e2e3e; background: #111820; color: #667; cursor: pointer; transition: all 0.15s; }
+    .port-tab.active { background: #0d3a5a; color: #5bc8ff; border-color: #1a5a8a; }
+    .port-search { background: #0f1820; border: 1px solid #1e2e3e; border-radius: 8px; padding: 7px 12px; color: #ccc; font-size: 13px; outline: none; width: 100%; margin-bottom: 12px; }
+    .port-search:focus { border-color: #5bc8ff; }
+    .port-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; max-height: 540px; overflow-y: auto; padding-right: 4px; }
+    .port-grid::-webkit-scrollbar { width: 5px; }
+    .port-grid::-webkit-scrollbar-thumb { background: #1e2e3e; border-radius: 3px; }
+    .port-card { background: #111820; border: 1.5px solid #1e2e3e; border-radius: 10px; overflow: hidden; transition: border-color 0.15s; }
+    .port-card.is-inf { border-color: #FFD700; }
+    .port-card-img { width: 100%; height: 90px; background: #0a0f18; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .port-card-img img { max-height: 82px; max-width: 100%; object-fit: contain; }
+    .port-card-img .ph { font-size: 32px; opacity: 0.25; }
+    .port-inf-badge { position: absolute; top: 5px; left: 5px; background: #FFD700; color: #000; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 10px; }
+    .port-upload-btn { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,.7); color: #5bc8ff; border: 1px solid #1e3e5e; border-radius: 6px; font-size: 10px; padding: 2px 7px; cursor: pointer; }
+    .port-upload-input { display: none; }
+    .port-card-body { padding: 8px 10px; }
+    .port-card-nombre { font-size: 11px; font-weight: 700; color: #ccc; margin-bottom: 6px; line-height: 1.3; cursor: pointer; display: flex; align-items: flex-start; gap: 4px; }
+    .port-card-nombre:hover .edit-ico { color: #5bc8ff; }
+    .edit-ico { font-size: 9px; color: #333; flex-shrink: 0; margin-top: 2px; }
+    .port-nombre-input { width: 100%; background: #0a0f18; border: 1px solid #5bc8ff; border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 11px; font-weight: 700; outline: none; margin-bottom: 6px; }
+    .port-card-sub { font-size: 10px; color: #445; margin-bottom: 8px; }
+    .port-inf-toggle { width: 100%; padding: 7px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1.5px solid; transition: all 0.15s; margin-top: 4px; }
+    .port-inf-toggle.on  { background: #1a2a00; color: #FFD700; border-color: #FFD700; }
+    .port-inf-toggle.off { background: #111820; color: #445; border-color: #1e2e3e; }
+    .port-inf-toggle.on:hover  { background: #2a3a00; }
+    .port-inf-toggle.off:hover { background: #1a2030; color: #667; border-color: #2e3e4e; }
+    .port-portafolio-toggle { width: 100%; padding: 7px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1.5px solid; transition: all 0.15s; }
+    .port-portafolio-toggle.in  { background: #0d3a1a; color: #5bff9a; border-color: #1a8a40; }
+    .port-portafolio-toggle.out { background: #1a1820; color: #666; border-color: #2e2e3e; }
+    .port-portafolio-toggle.in:hover  { background: #1a5a2a; }
+    .port-portafolio-toggle.out:hover { background: #252030; color: #5bc8ff; border-color: #3e4e6e; }
+    .port-excluded { opacity: 0.45; }
+    .port-excl-badge { position: absolute; top: 5px; left: 5px; background: #ff3b3b; color: #fff; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 10px; }    .port-upload-progress { height: 2px; background: #1e2e3e; border-radius: 2px; margin-top: 5px; overflow: hidden; display: none; }
+    .port-upload-progress.show { display: block; }
+    .port-upload-progress-fill { height: 100%; background: #5bc8ff; transition: width 0.2s; }
+    .port-save-foto-btn { width: 100%; margin-top: 6px; padding: 7px; background: #0d3a5a; color: #5bc8ff; border: 1px solid #1a5a8a; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; }
+    .port-save-foto-btn:hover { background: #1a5a8a; }
+    .port-save-foto-btn.show { display: flex; }
+    .port-save-foto-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .port-quitar-foto-btn { width: 100%; margin-top: 4px; padding: 5px; background: transparent; color: #333; border: 1px solid #1e2e3e; border-radius: 7px; font-size: 10px; cursor: pointer; display: none; transition: all 0.15s; }
+    .port-quitar-foto-btn:hover { color: #ff6b6b; border-color: #ff6b6b; }
+    .port-quitar-foto-btn.show { display: block; }
+    .port-stats-bar { font-size: 11px; color: #445; margin-bottom: 10px; }
+    .port-stats-bar strong { color: #5bc8ff; }
+    .port-open-btn { background: #0d3a5a; color: #5bc8ff; border: 1px solid #1a5a8a; border-radius: 8px; padding: 7px 16px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .port-open-btn:hover { background: #1a5a8a; color: #fff; }
+
     /* SECCIÓN OFERTAS */
     .ofertas-section { padding: 20px 24px; border-bottom: 2px solid #2a1a0a; background: #0f0f13; }
     .ofertas-section h2 { font-size: 16px; font-weight: 800; color: #FFD700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
@@ -158,6 +211,39 @@
 </div>
 
 <div class="stats" id="stats"></div>
+
+<!-- ══════ SECCIÓN GESTIÓN DE PORTAFOLIO ══════ -->
+<div class="port-section">
+  <div class="port-section-header">
+    <h2>📋 Gestión de Portafolio Físico</h2>
+    <a href="portafolio.html" target="_blank" class="port-open-btn">👁 Ver portafolio →</a>
+  </div>
+  <p>
+    Agrega o quita productos del portafolio y marca infaltables. 
+    Los cambios se guardan y sincronizan <strong>automáticamente en tiempo real con Supabase</strong>.
+  </p>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+    <button id="port-save-btn" onclick="guardarJsonPortafolio()"
+      style="padding:8px 18px;background:#1a3a1a;color:#a0ffbf;border:1.5px solid #205a20;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s">
+      💾 Guardar copia offline en portafolio.html
+    </button>
+    <button onclick="portCargarInfaltablesSugeridos()"
+      style="padding:8px 18px;background:#2b2608;color:#ffe066;border:1.5px solid #6b5c10;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s">
+      ⭐ Cargar infaltables sugeridos
+    </button>
+  </div>
+  <!-- Tabs por categoría -->
+  <div class="port-tabs" id="port-tabs"></div>
+
+  <!-- Búsqueda dentro de la categoría -->
+  <input class="port-search" id="port-search" placeholder="🔍 Buscar producto en esta categoría...">
+
+  <!-- Stats -->
+  <div class="port-stats-bar" id="port-stats"></div>
+
+  <!-- Grid de productos -->
+  <div class="port-grid" id="port-grid"></div>
+</div>
 
 <!-- ══════ SECCIÓN GESTIÓN DE OFERTAS ══════ -->
 <div class="ofertas-section">
@@ -279,12 +365,22 @@ async function cargarTodo() {
     if (row.clave === 'eliminados')       eliminados      = row.valor || [];
     if (row.clave === 'productos_custom') productosCustom = row.valor || [];
     if (row.clave === 'productos_next_id') nextCustomId   = row.valor || 90001;
+    if (row.clave === 'portafolio_config') portConfig     = row.valor || {};
   });
 
   // 3. Fusionar productos personalizados al array global
   productosCustom.forEach(p => {
     if (!productos.find(x => x.id === p.id)) productos.push(p);
   });
+
+  // 4. Guardar en localStorage para sincronización instantánea con portafolio
+  try {
+    localStorage.setItem('catalogo_nombres', JSON.stringify(nombresMap));
+    localStorage.setItem('catalogo_eliminados', JSON.stringify(eliminados));
+    localStorage.setItem('catalogo_custom', JSON.stringify(productosCustom));
+    localStorage.setItem('catalogo_portafolio_config', JSON.stringify(portConfig));
+    localStorage.setItem('catalogo_img_map', JSON.stringify(imgMap));
+  } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -292,12 +388,15 @@ async function cargarTodo() {
 // ══════════════════════════════════════════════════════════════════════════════
 async function guardarNombresDB() {
   await sb.from('catalogo_config').upsert({ clave: 'nombres', valor: nombresMap, updated_at: new Date().toISOString() });
+  try { localStorage.setItem('catalogo_nombres', JSON.stringify(nombresMap)); } catch(e) {}
 }
 async function guardarEliminadosDB() {
   await sb.from('catalogo_config').upsert({ clave: 'eliminados', valor: eliminados, updated_at: new Date().toISOString() });
+  try { localStorage.setItem('catalogo_eliminados', JSON.stringify(eliminados)); } catch(e) {}
 }
 async function guardarProductosCustomDB() {
   await sb.from('catalogo_config').upsert({ clave: 'productos_custom', valor: productosCustom, updated_at: new Date().toISOString() });
+  try { localStorage.setItem('catalogo_custom', JSON.stringify(productosCustom)); } catch(e) {}
 }
 async function guardarNextIdDB() {
   await sb.from('catalogo_config').upsert({ clave: 'productos_next_id', valor: nextCustomId, updated_at: new Date().toISOString() });
@@ -741,6 +840,387 @@ async function quitarFotoOferta(ofertaId) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// GESTIÓN DE PORTAFOLIO
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Estado portafolio
+let portConfig = {};
+// Estructura: {
+//   infaltables: { [cat]: [id, id, ...] },     // IDs marcados como infaltables por categoría
+//   nombres:     { [id]: "nombre custom" },     // nombres personalizados para portafolio
+// }
+// Las fotos se reusan del mismo bucket (img_<id>), igual que en la app.
+
+const PORT_CATS = ['GASEOSA','JUGOS','HIDRATANTES','ENERGIZANTES','AGUAS','BEBIDA DE TE','CERVEZA','ALIMENTOS','CAFÉ'];
+const PORT_CAT_ICON = { GASEOSA:'🥤', JUGOS:'🍊', HIDRATANTES:'💧', ENERGIZANTES:'⚡', AGUAS:'🫧', 'BEBIDA DE TE':'🍵', CERVEZA:'🍺', ALIMENTOS:'🛒', 'CAFÉ':'☕' };
+
+let portCatActiva = PORT_CATS[0];
+let portPending   = {}; // { id: { dataUrl, file } }
+
+function portGetConfig() {
+  if (!portConfig.infaltables) portConfig.infaltables = {};
+  if (!portConfig.nombres)     portConfig.nombres     = {};
+  if (!portConfig.enPortafolio) portConfig.enPortafolio = {};
+  return portConfig;
+}
+
+const DEFAULT_INFALTABLES = {
+  "GASEOSA":      [23214, 23216, 31947],
+  "JUGOS":        [23229, 23235, 23237],
+  "HIDRATANTES":  [34379, 34380, 23686],
+  "ENERGIZANTES": [29076, 35840, 17186],
+  "AGUAS":        [23599, 23548],
+  "BEBIDA DE TE": [23378, 23379],
+  "CERVEZA":      [29624, 28963, 32673],
+  "ALIMENTOS":    [28769, 22208, 35513],
+  "CAFÉ":         [32720, 32811]
+};
+
+async function guardarPortConfigDB() {
+  // 1. Guardar en Supabase
+  try {
+    await sb.from('catalogo_config').upsert({
+      clave: 'portafolio_config',
+      valor: portConfig,
+      updated_at: new Date().toISOString()
+    });
+  } catch(e) { console.warn('Supabase:', e); }
+
+  // 2. Guardar en localStorage para sincronización instantánea con portafolio
+  try {
+    localStorage.setItem('catalogo_portafolio_config', JSON.stringify(portConfig));
+  } catch(e) {}
+
+  // 3. Notificar estado
+  await _escribirEnPortafolioHtml();
+}
+
+async function _escribirEnPortafolioHtml() {
+  const btn = document.getElementById('port-save-btn');
+  if (btn) { btn.textContent = '💾 Guardar copia offline en portafolio.html'; btn.style.background = '#1a3a1a'; }
+}
+
+async function portCargarInfaltablesSugeridos() {
+  const cfg = portGetConfig();
+  const sugeridos = DEFAULT_INFALTABLES[portCatActiva] || [];
+  if (!sugeridos.length) {
+    toast('No hay infaltables sugeridos para ' + portCatActiva);
+    return;
+  }
+  cfg.infaltables[portCatActiva] = sugeridos.filter(id => !estaEliminado(id));
+  // Asegurar que estén en el portafolio
+  cfg.infaltables[portCatActiva].forEach(id => {
+    if (!portIsEnPortafolio(portCatActiva, id)) {
+      if (!cfg.enPortafolio[portCatActiva]) cfg.enPortafolio[portCatActiva] = [];
+      cfg.enPortafolio[portCatActiva].push(id);
+    }
+  });
+  await guardarPortConfigDB();
+  toast('⭐ Infaltables sugeridos aplicados');
+  renderPortGrid();
+}
+
+async function guardarJsonPortafolio() {
+  if (!('showOpenFilePicker' in window)) {
+    toast('Usa Chrome o Edge para guardar automáticamente', true);
+    return;
+  }
+  try {
+    // Pedir al usuario que seleccione portafolio.html
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }],
+      multiple: false
+    });
+    // Leer el contenido actual
+    const file = await handle.getFile();
+    let html = await file.text();
+
+    // Reemplazar el bloque PORTAFOLIO_CONFIG
+    const json = JSON.stringify(portConfig, null, 2);
+    html = html.replace(
+      /window\.PORTAFOLIO_CONFIG\s*=\s*\{[\s\S]*?\};/,
+      `window.PORTAFOLIO_CONFIG = ${json};`
+    );
+
+    // Escribir de vuelta
+    const writable = await handle.createWritable();
+    await writable.write(html);
+    await writable.close();
+
+    const btn = document.getElementById('port-save-btn');
+    if (btn) { btn.textContent = '✅ Copia guardada'; btn.style.background = '#1d7a40'; }
+    toast('✅ portafolio.html actualizado directamente');
+  } catch(e) {
+    if (e.name === 'AbortError') return;
+    toast('Error: ' + e.message, true);
+  }
+}
+
+function portIsInfaltable(cat, id) {
+  const cfg = portGetConfig();
+  return (cfg.infaltables[cat] || []).includes(id);
+}
+
+function portIsEnPortafolio(cat, id) {
+  const cfg = portGetConfig();
+  // Si la categoría nunca ha sido configurada, se consideran TODOS incluidos (comportamiento inicial)
+  if (!cfg.enPortafolio[cat]) return true;
+  return cfg.enPortafolio[cat].includes(id);
+}
+
+async function portToggleInfaltable(cat, id) {
+  const cfg = portGetConfig();
+  if (!cfg.infaltables[cat]) cfg.infaltables[cat] = [];
+  const idx = cfg.infaltables[cat].indexOf(id);
+  if (idx === -1) {
+    cfg.infaltables[cat].push(id);
+    // Al marcar infaltable, asegurarse que esté en el portafolio también
+    if (!portIsEnPortafolio(cat, id)) await portToggleEnPortafolio(cat, id, true);
+  } else {
+    cfg.infaltables[cat].splice(idx, 1);
+  }
+  await guardarPortConfigDB();
+  toast('✅ Infaltable actualizado');
+  renderPortGrid();
+}
+
+async function portToggleEnPortafolio(cat, id, forzarAgregar = false) {
+  const cfg = portGetConfig();
+  // Inicializar con todos los productos de la categoría si es la primera vez
+  if (!cfg.enPortafolio[cat]) {
+    cfg.enPortafolio[cat] = productos
+      .filter(p => p.categoria === cat && !estaEliminado(p.id))
+      .map(p => p.id);
+  }
+  const lista = cfg.enPortafolio[cat];
+  const idx = lista.indexOf(id);
+  if (forzarAgregar) {
+    if (idx === -1) lista.push(id);
+  } else if (idx === -1) {
+    lista.push(id);
+  } else {
+    // Quitar, pero no si es infaltable
+    if (portIsInfaltable(cat, id)) {
+      toast('⚠️ No puedes quitar un infaltable. Quita el ★ primero.', true);
+      return;
+    }
+    lista.splice(idx, 1);
+  }
+  await guardarPortConfigDB();
+  toast(idx === -1 ? '✅ Producto agregado al portafolio' : '🗑 Producto quitado del portafolio');
+  renderPortGrid();
+}
+
+function portGetNombre(prod) {
+  const cfg = portGetConfig();
+  return cfg.nombres[prod.id] || getNombre(prod);
+}
+
+async function portGuardarNombre(id) {
+  const input = document.getElementById(`port-inp-${id}`);
+  if (!input) return;
+  const nuevo = input.value.trim();
+  const prod  = productos.find(p => p.id === id);
+  if (!nuevo) { renderPortGrid(); return; }
+  const cfg = portGetConfig();
+  if (nuevo === prod.nombre) { delete cfg.nombres[id]; }
+  else                       { cfg.nombres[id] = nuevo; }
+  await guardarPortConfigDB();
+  toast('✅ Nombre de portafolio guardado');
+  renderPortGrid();
+}
+
+function portEditarNombre(id) {
+  const el = document.getElementById(`port-nom-${id}`);
+  if (!el) return;
+  const actual = portGetNombre(productos.find(p => p.id === id));
+  el.outerHTML = `<input class="port-nombre-input" id="port-inp-${id}"
+    value="${actual.replace(/"/g,'&quot;')}"
+    onblur="portGuardarNombre(${id})"
+    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){event.preventDefault();renderPortGrid();}">`;
+  document.getElementById(`port-inp-${id}`)?.focus();
+}
+
+// Foto portafolio — reutiliza el mismo bucket img_<id>
+function portOnFile(input, id) {
+  const f = input.files[0];
+  if (f) portLeer(f, id);
+}
+function portOnDrop(e, id) {
+  e.preventDefault(); e.currentTarget.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) portLeer(f, id);
+}
+function portLeer(file, id) {
+  const r = new FileReader();
+  r.onload = e => { portPending[id] = { dataUrl: e.target.result, file }; renderPortGrid(); };
+  r.readAsDataURL(file);
+}
+
+async function portGuardarFoto(id) {
+  const pend = portPending[id];
+  if (!pend) return;
+  const btn = document.getElementById(`port-savebtn-${id}`);
+  const pb  = document.getElementById(`port-pb-${id}`);
+  const pf  = document.getElementById(`port-pf-${id}`);
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Subiendo...</span>';
+  pb.classList.add('show'); pf.style.width = '40%';
+  const ext = pend.file.name.split('.').pop().toLowerCase() || 'jpg';
+  const fileName = `img_${id}.${ext}`;
+  try {
+    const { error } = await sb.storage.from(BUCKET).upload(fileName, pend.file, { upsert: true, contentType: pend.file.type });
+    if (error) throw error;
+    pf.style.width = '100%';
+    imgMap[id] = ext;
+    try { localStorage.setItem('catalogo_img_map', JSON.stringify(imgMap)); } catch(e) {}
+    delete portPending[id];
+    toast('✅ Foto subida al portafolio');
+    setTimeout(() => { pb.classList.remove('show'); pf.style.width = '0%'; renderPortGrid(); }, 500);
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = '📷 Guardar foto';
+    pb.classList.remove('show');
+    toast('❌ Error: ' + (err.message || err), true);
+  }
+}
+
+async function portQuitarFoto(id) {
+  if (!confirm('¿Quitar la foto de este producto del portafolio?')) return;
+  const ext = imgMap[id];
+  if (ext) {
+    await sb.storage.from(BUCKET).remove([`img_${id}.${ext}`]);
+    delete imgMap[id];
+    try { localStorage.setItem('catalogo_img_map', JSON.stringify(imgMap)); } catch(e) {}
+  }
+  toast('🗑 Foto quitada'); renderPortGrid();
+}
+
+function renderPortTabs() {
+  const container = document.getElementById('port-tabs');
+  if (!container) return;
+  container.innerHTML = PORT_CATS.map(cat => {
+    const total = productos.filter(p => p.categoria === cat && !estaEliminado(p.id)).length;
+    const cfg = portGetConfig();
+    // Productos activos en portafolio para esta categoría
+    const enPort = cfg.enPortafolio[cat]
+      ? cfg.enPortafolio[cat].length
+      : total; // si no configurado, todos van
+    const infCount = (cfg.infaltables[cat] || []).length;
+    return `<button class="port-tab ${portCatActiva === cat ? 'active' : ''}"
+      onclick="portSetCat('${cat}')">
+      ${PORT_CAT_ICON[cat]} ${cat}
+      <span style="opacity:.6;font-size:10px">(${enPort}/${total} · ${infCount}★)</span>
+    </button>`;
+  }).join('');
+}
+
+function portSetCat(cat) {
+  portCatActiva = cat;
+  document.getElementById('port-search').value = '';
+  renderPortTabs();
+  renderPortGrid();
+}
+
+function renderPortGrid() {
+  renderPortTabs();
+  const q = (document.getElementById('port-search')?.value || '').toLowerCase().trim();
+  const lista = productos.filter(p => {
+    if (p.categoria !== portCatActiva) return false;
+    if (estaEliminado(p.id)) return false;
+    if (!q) return true;
+    return p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) ||
+           (p.codigoBarra || '').includes(q) || String(p.id).includes(q);
+  });
+
+  const cfg = portGetConfig();
+  const enPortTotal = cfg.enPortafolio[portCatActiva]
+    ? cfg.enPortafolio[portCatActiva].length
+    : lista.length;
+  const infCount = (cfg.infaltables[portCatActiva] || []).length;
+
+  const statsEl = document.getElementById('port-stats');
+  if (statsEl) statsEl.innerHTML =
+    `<strong>${lista.length}</strong> productos totales · <strong style="color:#5bc8ff">${enPortTotal} en portafolio</strong> · <strong style="color:#FFD700">${infCount} ★ infaltables</strong>`;
+
+  const grid = document.getElementById('port-grid');
+  if (!grid) return;
+
+  if (!lista.length) {
+    grid.innerHTML = '<div style="color:#445;padding:20px;text-align:center;grid-column:1/-1">Sin productos en esta categoría</div>';
+    return;
+  }
+
+  grid.innerHTML = lista.map(p => {
+    const isInf  = portIsInfaltable(portCatActiva, p.id);
+    const inPort = portIsEnPortafolio(portCatActiva, p.id);
+    const pend   = portPending[p.id];
+    const imgUrl = getImgUrl(p.id) || (p.imagen ? `assets/img/productos/${p.imagen}` : null);
+    const show   = pend ? pend.dataUrl : imgUrl;
+    const icon   = PORT_CAT_ICON[p.categoria] || '📦';
+    const nombre = portGetNombre(p);
+    const hasImg = !!(imgMap[p.id]);
+
+    const imgHtml = show
+      ? `<img src="${show}" alt="${nombre}" onerror="this.style.display='none';this.nextSibling.style.display='block'"><div class="ph" style="display:none">${icon}</div>`
+      : `<div class="ph">${icon}</div>`;
+
+    return `
+<div class="port-card ${isInf ? 'is-inf' : ''} ${!inPort ? 'port-excluded' : ''}" id="port-card-${p.id}">
+  <div class="port-card-img">
+    ${imgHtml}
+    ${isInf ? `<div class="port-inf-badge">★ INFALTABLE</div>` : ''}
+    ${!inPort ? `<div class="port-excl-badge">❌ EXCLUIDO</div>` : ''}
+    <label class="port-upload-btn" title="Cambiar foto">
+      📷
+      <input class="port-upload-input" type="file" accept="image/*" onchange="portOnFile(this,${p.id})">
+    </label>
+  </div>
+  <div class="port-card-body">
+    <div class="port-card-nombre" id="port-nom-${p.id}" onclick="portEditarNombre(${p.id})">
+      ${nombre} <span class="edit-ico">✏️</span>
+    </div>
+    <div class="port-card-sub">${p.marca} · ${p.presentacion || ''}</div>
+
+    <!-- Botón: en/fuera del portafolio -->
+    <button class="port-portafolio-toggle ${inPort ? 'in' : 'out'}"
+      onclick="portToggleEnPortafolio('${portCatActiva}', ${p.id})">
+      ${inPort ? '📋 En portafolio ✓' : '➕ Agregar al portafolio'}
+    </button>
+
+    <!-- Botón: infaltable (solo si está en portafolio) -->
+    ${inPort ? `<button class="port-inf-toggle ${isInf ? 'on' : 'off'}"
+      onclick="portToggleInfaltable('${portCatActiva}', ${p.id})">
+      ${isInf ? '★ Infaltable ✓' : '☆ Marcar infaltable'}
+    </button>` : ''}
+
+    ${pend ? `
+    <div class="port-upload-progress show" id="port-pb-${p.id}">
+      <div class="port-upload-progress-fill" id="port-pf-${p.id}" style="width:0%"></div>
+    </div>
+    <button class="port-save-foto-btn show" id="port-savebtn-${p.id}" onclick="portGuardarFoto(${p.id})">
+      📷 Guardar foto
+    </button>
+    ` : `
+    <div class="port-upload-progress" id="port-pb-${p.id}">
+      <div class="port-upload-progress-fill" id="port-pf-${p.id}" style="width:0%"></div>
+    </div>
+    <button class="port-save-foto-btn" id="port-savebtn-${p.id}" onclick="portGuardarFoto(${p.id})">
+      📷 Guardar foto
+    </button>
+    `}
+    <button class="port-quitar-foto-btn ${hasImg ? 'show' : ''}" onclick="portQuitarFoto(${p.id})">
+      🗑 Quitar foto
+    </button>
+  </div>
+</div>`;
+  }).join('');
+}
+
+// Arranque portafolio
+document.getElementById('port-search')?.addEventListener('input', renderPortGrid);
+
+// ══════════════════════════════════════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════════════════════════════════════
 function toast(msg, err = false) {
@@ -768,6 +1248,32 @@ document.getElementById('filter-cat').addEventListener('change', render);
   allCats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCat.appendChild(o); });
   document.getElementById('loading').style.display = 'none';
   renderOfertasAdmin();
+
+  // Inicializar enPortafolio con TODOS los productos si está vacío
+  // Esto garantiza que el portafolio arranque mostrando todos los productos
+  const cfg = portGetConfig();
+  let inicializado = false;
+  PORT_CATS.forEach(cat => {
+    if (!cfg.enPortafolio[cat]) {
+      cfg.enPortafolio[cat] = productos
+        .filter(p => p.categoria === cat && !estaEliminado(p.id))
+        .map(p => p.id);
+      inicializado = true;
+    }
+  });
+  if (inicializado) {
+    // Guardar la inicialización silenciosamente
+    sb.from('catalogo_config').upsert({
+      clave: 'portafolio_config',
+      valor: portConfig,
+      updated_at: new Date().toISOString()
+    }).catch(e => console.warn(e));
+    try {
+      localStorage.setItem('catalogo_portafolio_config', JSON.stringify(portConfig));
+    } catch(e) {}
+  }
+
+  renderPortGrid();
   render();
 })();
 </script>

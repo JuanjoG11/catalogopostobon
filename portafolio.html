@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Portafolio Físico — Postobón</title>
 <script src="assets/js/supabase.min.js"></script>
+<script src="assets/js/productos.js"></script>
 <style>
 /* ============================================================
    RESET & VARIABLES
@@ -104,6 +105,33 @@ body {
   align-items: center; gap: 10px; text-align: center;
   padding: 20mm 20mm 24mm;
 }
+.portada-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 2px;
+}
+.portada-logo-postobon {
+  max-height: 26mm;
+  max-width: 80mm;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 4px 16px rgba(0,0,0,.4));
+}
+.portada-x {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 20pt;
+  font-weight: 300;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0,0,0,.35);
+  user-select: none;
+}
+.portada-logo-tat {
+  max-height: 23mm;
+  max-width: 65mm;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 4px 16px rgba(0,0,0,.4));
+}
 .portada-logo img {
   max-height: 28mm; max-width: 90mm;
   object-fit: contain;
@@ -154,6 +182,13 @@ body {
   position: relative; z-index: 1;
   display: flex; flex-direction: column;
   align-items: center; gap: 12px; text-align: center;
+}
+.sep-logo {
+  max-height: 22mm;
+  max-width: 70mm;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 4px 16px rgba(0,0,0,.4));
+  margin-bottom: 6px;
 }
 .sep-icon { font-size: 64pt; line-height: 1; }
 .sep-titulo {
@@ -374,6 +409,8 @@ body {
 @media print {
   body { background: none; }
   .print-hint { display: none; }
+  #debug-bar   { display: none !important; }
+  #reload-bar  { display: none !important; }
   .page, .separator-page { margin: 0; box-shadow: none; }
   @page { size: Letter landscape; margin: 0; }
 }
@@ -409,8 +446,11 @@ body {
 
 <div id="portafolio-container" style="display:none">
 
-<div class="print-hint">
-  💡 Para generar el PDF: <strong>Ctrl+P → Guardar como PDF</strong> · Tamaño: Carta · Orientación: Horizontal · Márgenes: Ninguno · ✅ Activar "Gráficos de fondo"
+<div id="debug-bar" style="display:none;text-align:center;padding:8px 20px;font-size:11pt;background:#1a3a1a;color:#a0ffbf;border:1px solid #205a20;margin:6px auto;width:279mm;border-radius:6px;font-weight:600;"></div>
+
+<div class="print-hint" id="reload-bar">
+  💡 Para generar el PDF: <strong>Ctrl+P → Guardar como PDF</strong> · Carta · Horizontal · Sin márgenes · ✅ Gráficos de fondo &nbsp;|&nbsp;
+  <button onclick="location.reload()" style="background:#E8192C;color:white;border:none;border-radius:6px;padding:4px 14px;font-weight:700;cursor:pointer;font-size:10pt">🔄 Recargar configuración</button>
 </div>
 
 <!-- ==================== PORTADA ==================== -->
@@ -420,13 +460,15 @@ body {
   <div class="portada-wave"></div>
   <div class="portada-wave2"></div>
   <div class="portada-content">
-    <div class="portada-logo">
-      <img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'">
+    <div class="portada-logos">
+      <img src="logo-postobon.png" alt="Postobón" class="portada-logo-postobon" onerror="this.style.display='none'">
+      <span class="portada-x">✕</span>
+      <img src="logo_tat.png" alt="TAT Distribuciones" class="portada-logo-tat" onerror="this.style.display='none'">
     </div>
     <div class="portada-line"></div>
     <div class="portada-titulo">Portafolio de<br>Productos</div>
     <div class="portada-subtitulo">Catálogo de Referencias</div>
-    <div class="portada-year">2025 · 2026</div>
+    <div class="portada-year">2026</div>
     <div class="portada-line"></div>
     <div class="portada-cats">
       <span class="portada-cat-chip">🥤 Gaseosas</span>
@@ -452,13 +494,15 @@ body {
   <div class="portada-wave"></div>
   <div class="portada-wave2"></div>
   <div class="portada-content">
-    <div class="portada-logo">
-      <img src="logo-postobon.png" alt="Postobón" onerror="this.style.display='none'">
+    <div class="portada-logos">
+      <img src="logo-postobon.png" alt="Postobón" class="portada-logo-postobon" onerror="this.style.display='none'">
+      <span class="portada-x">✕</span>
+      <img src="logo_tat.png" alt="TAT Distribuciones" class="portada-logo-tat" onerror="this.style.display='none'">
     </div>
     <div class="portada-line" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)"></div>
     <div class="portada-titulo" style="font-size:20pt">¡Gracias por tu preferencia!</div>
     <div class="portada-subtitulo" style="font-size:9pt">Portafolio vigente · Consultar disponibilidad de producto</div>
-    <div class="portada-year">Postobón S.A. · Colombia</div>
+    <div class="portada-year">Postobón S.A. · TAT Distribuciones · 2026</div>
   </div>
 </div>
 
@@ -468,204 +512,221 @@ body {
 // ============================================================
 //  CONFIG SUPABASE (mismo que app.js)
 // ============================================================
+//  CONFIG EMBEBIDA — actualizada desde el admin con "Guardar en portafolio.html"
+// ============================================================
+window.PORTAFOLIO_CONFIG = {
+  "enPortafolio": {
+    "GASEOSA":      [23214,23216,23215,34599,35072,34794,34785,23197,31947],
+    "JUGOS":        [23273,23229,23242,23275,23235,23244,23276,23237,23245,23274,23236,23243],
+    "HIDRATANTES":  [34414,34379,34380,34461,32080,23684,23569,23686],
+    "ENERGIZANTES": [29076,17186,25131,35840,23649],
+    "AGUAS":        [23599,23583,23548],
+    "BEBIDA DE TE": [23378,23379],
+    "CERVEZA":      [34074,34007,28963,32673,29618,29624,32804,29628,28624,28621,27466],
+    "ALIMENTOS":    [28769,28770,31969,22208,26370,31966,35129,35513],
+    "CAFÉ":         [32720,32811]
+  },
+  "infaltables": {
+    "GASEOSA":      [],
+    "JUGOS":        [23229,23235,23237],
+    "HIDRATANTES":  [34379,34380,23686],
+    "ENERGIZANTES": [29076,35840,17186],
+    "AGUAS":        [23599,23548],
+    "BEBIDA DE TE": [23378,23379],
+    "CERVEZA":      [29624,28963,32673],
+    "ALIMENTOS":    [28769,22208,35513],
+    "CAFÉ":         [32720,32811]
+  },
+  "nombres": {}
+};
+
+// ============================================================
 const SUPA_URL    = 'https://ahcvjqrlggmfmyevgjqb.supabase.co';
 const SUPA_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoY3ZqcXJsZ2dtZm15ZXZnanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MDk1NDUsImV4cCI6MjEwOTM4NTU0NX0.S2i3UO9yCw-WQzmwi8Q_Fs_a3nyMQz0-IWeu_uVnG1s';
 const BUCKET      = 'productos';
 const IMG_LOCAL   = 'assets/img/productos/';
 
-// ============================================================
-//  DATOS DE PRODUCTOS (igual que productos.js)
-// ============================================================
-const PRODUCTOS = [
-  // ALIMENTOS
-  { id:28769, nombre:"LOMOS ATÚN ACEITE BARY",    pres:"Lata 140g x48",       marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439522797", precio:5610,  img:"bary_atun_bot.jpeg",    icon:"🥫" },
-  { id:28770, nombre:"LOMOS ATÚN AGUA BARY",      pres:"Lata 140g x48",       marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439273750", precio:5610,  img:"bary_atun2.jpeg",        icon:"🥫" },
-  { id:31969, nombre:"MAYONESA BARY 80G",         pres:"Display 12×12 und",   marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439709976", precio:14400, img:"bary_mayo1.jpeg",        icon:"🫙" },
-  { id:22208, nombre:"TOMATE BARY 170G",          pres:"Doy Pack x26",        marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439339715", precio:2184,  img:"bary_tomate1.jpeg",      icon:"🍅" },
-  { id:26370, nombre:"TOMATE BARY 110G",          pres:"Doy Pack SV x24",     marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439417062", precio:1680,  img:"bary_tomate1.jpeg",      icon:"🍅" },
-  { id:31966, nombre:"TOMATE BARY 80G",           pres:"Display 12×12 und",   marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439276645", precio:14400, img:"bary_tomate1.jpeg",      icon:"🍅" },
-  { id:35513, nombre:"MAYONESA BARY 110G",        pres:"Doy Pack SV x24",     marca:"BARY",        cat:"ALIMENTOS",    cod:"7702439474522", precio:1680,  img:"bary_mayo1.jpeg",        icon:"🫙" },
-  { id:35129, nombre:"BOCADILLO BIHAO 40G",       pres:"Bol x25 Cx12",        marca:"DOÑA GUAYABA",cat:"ALIMENTOS",    cod:"7702509641397", precio:16000, img:"bary_p1.jpeg",           icon:"🍐" },
-  // CERVEZA
-  { id:34074, nombre:"MÍTICA BOT NR 300",         pres:"300ml Botella NR 4×6",marca:"MITICA",      cat:"CERVEZA",      cod:"7707430879796", precio:14150, img:"andina_lata_310.jpeg",   icon:"⭐" },
-  { id:34007, nombre:"MÍTICA LATA 310",           pres:"310ml Lata 4×6",      marca:"MITICA",      cat:"CERVEZA",      cod:"7707430876092", precio:16275, img:"andina_lata_310.jpeg",   icon:"⭐" },
-  { id:28963, nombre:"ANDINA LIGHT LATA 473",     pres:"473ml Lata x12",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430877501", precio:2575,  img:"andina_light_lata1.jpeg",icon:"✨" },
-  { id:32673, nombre:"ANDINA REFAJO LATA 310",    pres:"310ml Lata 4×6",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430879130", precio:13000, img:"andina_refajo_lata.jpeg",icon:"🍺" },
-  { id:29618, nombre:"HEINEKEN LATA 310",         pres:"310ml Lata 4×6",      marca:"HEINEKEN",    cat:"CERVEZA",      cod:"7707430870113", precio:18450, img:"heineken_lata_310.jpeg", icon:"🍺" },
-  { id:29624, nombre:"ANDINA LATA 310",           pres:"310ml Lata 4×6",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430879451", precio:13000, img:"andina_lata_310.jpeg",   icon:"🍺" },
-  { id:32804, nombre:"ANDINA LATA 473",           pres:"473ml Lata x12",      marca:"ANDINA",      cat:"CERVEZA",      cod:"7707430876641", precio:2817,  img:"andina_lata_473.jpeg",   icon:"🍺" },
-  { id:29628, nombre:"TRES CORD. ROSÉ NR 300",    pres:"300ml Bot NR 4×6",    marca:"TRES CORDILLERAS",cat:"CERVEZA",  cod:"7707430872162", precio:22325, img:"tres_cord_rosada.jpeg",  icon:"🌸" },
-  { id:28624, nombre:"TRES CORD. ROSÉ LATA 269",  pres:"269ml Lata 4×6",      marca:"TRES CORDILLERAS",cat:"CERVEZA",  cod:"7707430873978", precio:18600, img:"tres_cord_rosada.jpeg",  icon:"🌸" },
-  { id:28621, nombre:"SOL BOT NR 250",            pres:"250ml Botella NR 4×6",marca:"SOL",         cat:"CERVEZA",      cod:"7707430876078", precio:13000, img:"sol_bnr_250.jpeg",        icon:"☀️" },
-  { id:27466, nombre:"NATUMALTA 1000ml",          pres:"1000ml PET x8",       marca:"NATUMALTA",   cat:"CERVEZA",      cod:"7707430875552", precio:3375,  img:"natumalta_bot1.jpeg",    icon:"🌾" },
-  // HIDRATANTES
-  { id:34414, nombre:"COCO GATORLIT 620ml",       pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192521747", precio:4000,  img:"gatorade_bot3.png",      icon:"🥥" },
-  { id:34379, nombre:"FRESA KIWI GATORLIT 620ml", pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192046561", precio:4000,  img:"gatorade_bot1.png",      icon:"🍓" },
-  { id:34380, nombre:"MORAS GATORLIT 620ml",      pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192902263", precio:4000,  img:"gatorade_bot2.png",      icon:"🫐" },
-  { id:34461, nombre:"UVA GATORLIT 620ml",        pres:"620ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192308256", precio:4000,  img:"gatorade_bot1.png",      icon:"🍇" },
-  { id:32080, nombre:"BLUE ICE GATORADE 500ml",   pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192736455", precio:3250,  img:"gatorade_bot2.png",      icon:"🧊" },
-  { id:23684, nombre:"MANDARINA GATORADE 500ml",  pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192218050", precio:3250,  img:"gatorade_p2.jpeg",       icon:"🍊" },
-  { id:23569, nombre:"MARACUYA GATORADE 500ml",   pres:"500ml PET x12",       marca:"GATORADE",    cat:"HIDRATANTES",  cod:"7702192224051", precio:3250,  img:"gatorade_p2.jpeg",       icon:"🌺" },
-  { id:23686, nombre:"FRUTAS TROP. SQUASH 500ml", pres:"500ml PET x12",       marca:"SQUASH",      cat:"HIDRATANTES",  cod:"7702090029741", precio:2083,  img:"squash_bot1.jpeg",       icon:"🌴" },
-  // BEBIDA DE TE
-  { id:23378, nombre:"DURAZNO MR TEA 1500ml",     pres:"1500ml PET x6",       marca:"MR. TEA",     cat:"BEBIDA DE TE", cod:"7702090031294", precio:4067,  img:"mrte_bot_grande.jpeg",   icon:"🍑" },
-  { id:23379, nombre:"LIMON MR TEA 1500ml",       pres:"1500ml PET x6",       marca:"MR. TEA",     cat:"BEBIDA DE TE", cod:"7702090030839", precio:4067,  img:"mrte_bot2.jpeg",         icon:"🍋" },
-  // AGUAS
-  { id:23599, nombre:"AGUA CRISTAL 1000ml",       pres:"1000ml PET x12",      marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090042054", precio:1667,  img:"agua_cristal_1000ml.jpeg",icon:"💧" },
-  { id:23583, nombre:"CRISTAL CON GAS 250ml",     pres:"250ml PET x12",       marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090037784", precio:667,   img:"agua_cristal_gas.jpeg",  icon:"🫧" },
-  { id:23548, nombre:"CRISTAL CON GAS 600ml",     pres:"600ml PET x24",       marca:"CRISTAL",     cat:"AGUAS",        cod:"7702090023008", precio:1500,  img:"agua_cristal_gas.jpeg",  icon:"🫧" },
-  // GASEOSA
-  { id:23214, nombre:"COLOMBIANA 400ml",          pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151700874", precio:2083,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
-  { id:23216, nombre:"MANZANA POSTOBON 400ml",    pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090031928", precio:2083,  img:"gaseosa_p4.png",         icon:"🍎" },
-  { id:31947, nombre:"PEPSI S.I. 400ml",          pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702192741749", precio:2083,  img:"gaseosa_p5.png",         icon:"🥤" },
-  { id:23215, nombre:"UVA POSTOBON 400ml",        pres:"400ml PET x15",       marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090031942", precio:2083,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
-  { id:34599, nombre:"COLOMBIANA 1750ml",         pres:"1750ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151782061", precio:3750,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
-  { id:34793, nombre:"COLOMBIANA 1250ml",         pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7707151724061", precio:2917,  img:"gaseosa_p7.jpeg",        icon:"🇨🇴" },
-  { id:34786, nombre:"MANZANA POSTOBON 1250ml",   pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090568080", precio:2917,  img:"gaseosa_p4.png",         icon:"🍎" },
-  { id:35072, nombre:"PEPSI S.I. 1250ml",         pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702192239901", precio:2917,  img:"gaseosa_p5.png",         icon:"🥤" },
-  { id:34794, nombre:"UVA POSTOBON 1250ml",       pres:"1250ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090451498", precio:2917,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
-  { id:34785, nombre:"UVA POSTOBON 1750ml",       pres:"1750ml PET x12",      marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090719192", precio:3750,  img:"gaseosa_p3.jpeg",        icon:"🍇" },
-  { id:23197, nombre:"BRETAÑA 300ml",             pres:"300ml Vidrio NR x24", marca:"POSTOBON",    cat:"GASEOSA",      cod:"7702090020847", precio:2288,  img:"gaseosa_bretana_vidrio.jpeg",icon:"🍾" },
-  // ENERGIZANTES
-  { id:29076, nombre:"SPEED MAX 310ml",           pres:"310ml Lata x24",      marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090071849", precio:1667,  img:"speed_bot3.jpeg",        icon:"⚡" },
-  { id:17186, nombre:"RED BULL ORIGINAL 250ml",   pres:"250ml Lata x4",       marca:"RED BULL",    cat:"ENERGIZANTES", cod:"9002490100490", precio:6388,  img:"speed_bot6.jpeg",        icon:"🐂" },
-  { id:25131, nombre:"RED BULL SANDÍA 250ml",     pres:"250ml Lata x4",       marca:"RED BULL",    cat:"ENERGIZANTES", cod:"9002490251567", precio:6388,  img:"speed_bot7.jpeg",        icon:"🍉" },
-  { id:35840, nombre:"SPEED MAX FLOW 473ml",      pres:"473ml Lata x12",      marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090855951", precio:2500,  img:"speed_bot2.jpeg",        icon:"🚀" },
-  { id:23649, nombre:"SPEED MAX 250ml",           pres:"250ml PET x12",       marca:"SPEED",       cat:"ENERGIZANTES", cod:"7702090039436", precio:1250,  img:"speed_bot3.jpeg",        icon:"⚡" },
-  // JUGOS
-  { id:23273, nombre:"FRUTAS TROP. HIT 1000ml",   pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133055053", precio:3817,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
-  { id:23229, nombre:"FRUTAS TROP. HIT 200ml",    pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133025919", precio:1167,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
-  { id:23242, nombre:"FRUTAS TROP. HIT 500ml",    pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133052670", precio:2500,  img:"jugo_hit_250_p1.jpeg",   icon:"🌴" },
-  { id:23275, nombre:"MANGO HIT 1000ml",          pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133033730", precio:3817,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
-  { id:23235, nombre:"MANGO HIT 200ml",           pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133098029", precio:1167,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
-  { id:23244, nombre:"MANGO HIT 500ml",           pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133062471", precio:2500,  img:"jugo_hit_250_p3.jpeg",   icon:"🥭" },
-  { id:23276, nombre:"MORA HIT 1000ml",           pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133095097", precio:3817,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
-  { id:23237, nombre:"MORA HIT 200ml",            pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133042039", precio:1167,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
-  { id:23245, nombre:"MORA HIT 500ml",            pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133083216", precio:2500,  img:"jugo_hit_250_p4.jpeg",   icon:"🫐" },
-  { id:23274, nombre:"NARANJA PIÑA HIT 1000ml",   pres:"1000ml Tetra x12",    marca:"HIT",         cat:"JUGOS",        cod:"7707133065090", precio:3817,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
-  { id:23236, nombre:"NARANJA PIÑA HIT 200ml",    pres:"200ml Tetra x24",     marca:"HIT",         cat:"JUGOS",        cod:"7707133075655", precio:1167,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
-  { id:23243, nombre:"NARANJA PIÑA HIT 500ml",    pres:"500ml PET x12",       marca:"HIT",         cat:"JUGOS",        cod:"7707133044033", precio:2333,  img:"jugo_hit_250_p5.jpeg",   icon:"🍊" },
-  // CAFÉ
-  { id:32720, nombre:"TOSTAO SELECTO 110G",       pres:"Bolsa x72",           marca:"TOSTADO",     cat:"CAFÉ",         cod:"7708024204208", precio:5727,  img:"bary_tostao2.png",       icon:"☕" },
-  { id:32811, nombre:"TOSTAO SELECTO 454G",       pres:"Bolsa x18",           marca:"TOSTADO",     cat:"CAFÉ",         cod:"7708024204611", precio:21250, img:"bary_tostao2.png",       icon:"🫘" },
-];
+const DEFAULT_INFALTABLES = {
+  "GASEOSA":      [23214, 23216, 31947],
+  "JUGOS":        [23229, 23235, 23237],
+  "HIDRATANTES":  [34379, 34380, 23686],
+  "ENERGIZANTES": [29076, 35840, 17186],
+  "AGUAS":        [23599, 23548],
+  "BEBIDA DE TE": [23378, 23379],
+  "CERVEZA":      [29624, 28963, 32673],
+  "ALIMENTOS":    [28769, 22208, 35513],
+  "CAFÉ":         [32720, 32811]
+};
+
+let _portConfig      = window.PORTAFOLIO_CONFIG || { infaltables: {}, nombres: {}, enPortafolio: {} };
+let _nombresMap      = {};
+let _eliminados      = [];
+let _productosCustom = [];
+let _imgMap          = {};
+
+function estaEliminado(id) {
+  return _eliminados.includes(id);
+}
 
 // ============================================================
-//  ESTRUCTURA DEL CATÁLOGO (secciones en orden)
+//  MAPA DE ICONOS POR SABOR/CATEGORÍA (reutiliza lógica de app.js)
 // ============================================================
-const SECCIONES = [
-  {
-    cat: "GASEOSA", catClass: "cat-gaseosa", icon: "🥤", label: "Gaseosas",
-    marcas: ["POSTOBON"],
-    paginas: [
-      { brand: "Postobón", ids: [23214,23216,31947,23215,23197,34599,34793,34786,35072,34794,34785],
-        infaltables: [23214,23216,31947] }
+const ICON_MAP = {
+  'naranja':'🍊','manzana':'🍎','uva':'🍇','limón':'🍋','limon':'🍋',
+  'mango':'🥭','mora':'🫐','lulo':'🟢','maracuyá':'🌺','maracuya':'🌺',
+  'tropical':'🌴','tropicales':'🌴','fresa':'🍓','sandía':'🍉','sandia':'🍉',
+  'coco':'🥥','durazno':'🍑','mandarina':'🍊','kiwi':'🥝',
+  'blue ice':'🧊','cola':'🥤','colombiana':'🇨🇴','bretaña':'🍾',
+  'original':'⭐','light':'✨','refajo':'🍺','rosé':'🌸',
+  'guayaba':'🍐','malta':'🌾','aceite':'🥫','tomate':'🍅','mayonesa':'🫙',
+  'selecto':'☕','agua':'💧','gas':'🫧',
+};
+const CAT_DEFAULT_ICON = {
+  'GASEOSA':'🥤','JUGOS':'🍊','HIDRATANTES':'💧','ENERGIZANTES':'⚡',
+  'AGUAS':'🫧','BEBIDA DE TE':'🍵','CERVEZA':'🍺','ALIMENTOS':'🛒','CAFÉ':'☕'
+};
+function getIcon(prod) {
+  const sabor = (prod.sabor || '').toLowerCase();
+  for (const [k,v] of Object.entries(ICON_MAP)) { if (sabor.includes(k)) return v; }
+  return CAT_DEFAULT_ICON[prod.categoria] || '📦';
+}
+
+// ============================================================
+//  ESTRUCTURA DEL CATÁLOGO — se construye desde productos.js
+//  IDs de páginas y marcas se deducen automáticamente
+// ============================================================
+const SECCIONES_DEF = [
+  { cat:"GASEOSA",     catClass:"cat-gaseosa",     icon:"🥤", label:"Gaseosas",
+    paginas:[{ brand:"Postobón", marcaFilter:null }] },
+  { cat:"JUGOS",       catClass:"cat-jugos",        icon:"🍊", label:"Jugos",
+    paginas:[{ brand:"Hit",      marcaFilter:null }] },
+  { cat:"HIDRATANTES", catClass:"cat-hidratantes",  icon:"💧", label:"Hidratantes",
+    paginas:[{ brand:"Gatorade · Squash", marcaFilter:null }] },
+  { cat:"ENERGIZANTES",catClass:"cat-energizantes", icon:"⚡", label:"Energizantes",
+    paginas:[{ brand:"Speed · Red Bull",  marcaFilter:null }] },
+  { cat:"AGUAS",       catClass:"cat-aguas",        icon:"🫧", label:"Aguas",
+    paginas:[{ brand:"Cristal",  marcaFilter:null }] },
+  { cat:"BEBIDA DE TE",catClass:"cat-te",           icon:"🍵", label:"Bebidas de Té",
+    paginas:[{ brand:"Mr. Tea",  marcaFilter:null }] },
+  { cat:"CERVEZA",     catClass:"cat-cerveza",      icon:"🍺", label:"Cervezas",
+    paginas:[
+      { brand:"Andina · Natumalta",                    marcaFilter:["ANDINA","NATUMALTA"] },
+      { brand:"Heineken · Mítica · Tres Cordilleras · Sol", marcaFilter:["HEINEKEN","MITICA","TRES CORDILLERAS","SOL"] }
     ]
   },
-  {
-    cat: "JUGOS", catClass: "cat-jugos", icon: "🍊", label: "Jugos",
-    marcas: ["HIT"],
-    paginas: [
-      { brand: "Hit", ids: [23229,23242,23273,23235,23244,23275,23237,23245,23276,23236,23243,23274],
-        infaltables: [23229,23235,23237] }
-    ]
-  },
-  {
-    cat: "HIDRATANTES", catClass: "cat-hidratantes", icon: "💧", label: "Hidratantes",
-    marcas: ["GATORADE","SQUASH"],
-    paginas: [
-      { brand: "Gatorade · Squash", ids: [34379,34380,34414,34461,32080,23684,23569,23686],
-        infaltables: [34379,34380,23686] }
-    ]
-  },
-  {
-    cat: "ENERGIZANTES", catClass: "cat-energizantes", icon: "⚡", label: "Energizantes",
-    marcas: ["SPEED","RED BULL"],
-    paginas: [
-      { brand: "Speed · Red Bull", ids: [29076,35840,23649,17186,25131],
-        infaltables: [29076,35840,17186] }
-    ]
-  },
-  {
-    cat: "AGUAS", catClass: "cat-aguas", icon: "🫧", label: "Aguas",
-    marcas: ["CRISTAL"],
-    paginas: [
-      { brand: "Cristal", ids: [23599,23583,23548],
-        infaltables: [23599,23548] }
-    ]
-  },
-  {
-    cat: "BEBIDA DE TE", catClass: "cat-te", icon: "🍵", label: "Bebidas de Té",
-    marcas: ["MR. TEA"],
-    paginas: [
-      { brand: "Mr. Tea", ids: [23378,23379],
-        infaltables: [23378,23379] }
-    ]
-  },
-  {
-    cat: "CERVEZA", catClass: "cat-cerveza", icon: "🍺", label: "Cervezas",
-    marcas: ["ANDINA","HEINEKEN","MÍTICA","TRES CORDILLERAS","SOL","NATUMALTA"],
-    paginas: [
-      { brand: "Andina · Natumalta", ids: [29624,32804,28963,32673,27466],
-        infaltables: [29624,28963,32673] },
-      { brand: "Heineken · Mítica · Tres Cordilleras · Sol", ids: [29618,34007,34074,29628,28624,28621],
-        infaltables: [29618,29628] }
-    ]
-  },
-  {
-    cat: "ALIMENTOS", catClass: "cat-alimentos", icon: "🛒", label: "Alimentos",
-    marcas: ["BARY","DOÑA GUAYABA"],
-    paginas: [
-      { brand: "Bary · Doña Guayaba", ids: [28769,28770,31969,35513,22208,26370,31966,35129],
-        infaltables: [28769,22208,35513] }
-    ]
-  },
-  {
-    cat: "CAFÉ", catClass: "cat-cafe", icon: "☕", label: "Café",
-    marcas: ["TOSTAO"],
-    paginas: [
-      { brand: "Tostao", ids: [32720,32811],
-        infaltables: [32720,32811] }
-    ]
-  },
+  { cat:"ALIMENTOS",   catClass:"cat-alimentos",    icon:"🛒", label:"Alimentos & Café",
+    paginas:[{ brand:"Bary · Doña Guayaba · Tostao", marcaFilter:null, extraCats:["CAFÉ"] }] },
 ];
+
+// Construye SECCIONES llenando ids dinámicamente desde `productos`
+function buildSecciones(portConfig) {
+  const infConfig  = (portConfig && portConfig.infaltables)  || {};
+  const enPortConf = (portConfig && portConfig.enPortafolio) || {};
+
+  return SECCIONES_DEF.map(sec => {
+    // Categorías que participan en esta sección (principal + extras de sus páginas)
+    const catsEnSec = [...new Set([sec.cat, ...sec.paginas.flatMap(p => p.extraCats || [])])];
+    const marcas = [...new Set(
+      productos
+        .filter(p => catsEnSec.includes(p.categoria) && !estaEliminado(p.id))
+        .map(p => p.marca)
+    )];
+    const paginas = sec.paginas.map(pag => {
+      // Categorías que aportan productos a esta página (la principal + las extra)
+      const catsEnPag = [sec.cat, ...(pag.extraCats || [])];
+
+      // Todos los productos de esta página que no estén eliminados
+      const todoIds = productos
+        .filter(p => catsEnPag.includes(p.categoria) &&
+                     !estaEliminado(p.id) &&
+                     (!pag.marcaFilter || pag.marcaFilter.includes(p.marca)))
+        .map(p => p.id);
+
+      // Solo los que están en portafolio
+      // Combina las listas de todas las categorías de la página
+      const enPortIds = catsEnPag.flatMap(cat => enPortConf[cat] ? enPortConf[cat].map(Number) : []);
+      const ids = enPortIds.length > 0
+        ? todoIds.filter(id => enPortIds.includes(id))
+        : todoIds;
+
+      // Infaltables: combina todas las categorías de la página
+      let infaltables = [];
+      const allInfIds = catsEnPag.flatMap(cat => {
+        if (Array.isArray(infConfig[cat])) return infConfig[cat].map(Number);
+        if (DEFAULT_INFALTABLES[cat])      return DEFAULT_INFALTABLES[cat].map(Number);
+        return [];
+      });
+      infaltables = allInfIds.filter(id => ids.includes(id));
+
+      return {
+        brand: pag.brand,
+        ids,
+        infaltables
+      };
+    // Filtrar páginas vacías
+    }).filter(pag => pag.ids.length > 0);
+
+    return { ...sec, marcas, paginas };
+  // Filtrar secciones sin páginas
+  }).filter(sec => sec.paginas.length > 0);
+}
 
 // ============================================================
 //  HELPERS
 // ============================================================
-const fmt = (n) =>
-  '$' + new Intl.NumberFormat('es-CO', {minimumFractionDigits:0}).format(n);
-
-let _imgMap = {};
+const fmt = (n) => '$' + new Intl.NumberFormat('es-CO',{minimumFractionDigits:0}).format(n);
 
 function imgSrc(prod) {
   const ext = _imgMap[prod.id];
   if (ext) return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/img_${prod.id}.${ext}`;
-  if (prod.img) return `${IMG_LOCAL}${prod.img}`;
+  if (prod.imagen) return `${IMG_LOCAL}${prod.imagen}`;
   return null;
 }
 
-function imgTag(prod, w, h) {
-  const src = imgSrc(prod);
-  const style = `width:${w};height:${h};object-fit:contain;`;
-  if (src) {
-    return `<img src="${src}" alt="${prod.nombre}" style="${style}"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-            <div class="ico-fb" style="width:${w};height:${h};display:none">${prod.icon}</div>`;
-  }
-  return `<div class="ico-fb" style="width:${w};height:${h}">${prod.icon}</div>`;
+function getNombrePort(prod) {
+  const pNombres = (_portConfig && _portConfig.nombres) || {};
+  return pNombres[prod.id] || _nombresMap[prod.id] || prod.nombre;
 }
 
-function byId(id) { return PRODUCTOS.find(p => p.id === id); }
+function imgTag(prod, w, h) {
+  const icon = getIcon(prod);
+  const src  = imgSrc(prod);
+  const nom  = getNombrePort(prod);
+  const style = `width:${w};height:${h};object-fit:contain;`;
+  if (src) {
+    return `<img src="${src}" alt="${nom}" style="${style}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="ico-fb" style="width:${w};height:${h};display:none">${icon}</div>`;
+  }
+  return `<div class="ico-fb" style="width:${w};height:${h}">${icon}</div>`;
+}
+
+function byId(id) { return productos.find(p => p.id === id); }
 
 // ============================================================
 //  RENDER FUNCIONES
 // ============================================================
+const CAT_SEP_LOGO = {
+  'GASEOSA':      'logo postobon2.png',
+  'JUGOS':        'logo postobon2.png',
+  'HIDRATANTES':  'logo postobon2.png',
+  'ENERGIZANTES': 'logo postobon2.png',
+  'AGUAS':        'logo postobon2.png',
+  'BEBIDA DE TE': 'logo postobon2.png',
+  'CERVEZA':      'logo central cervecera.png',
+  'ALIMENTOS':    'logo nutrium.png',
+};
+
 function renderSeparador(sec) {
+  const logoSrc = CAT_SEP_LOGO[sec.cat];
+  const logoHtml = logoSrc
+    ? `<img src="${logoSrc}" alt="logo" class="sep-logo" onerror="this.style.display='none'">`
+    : '';
   return `
 <div class="page separator-page ${sec.catClass}">
   <div class="sep-bg"></div>
   <div class="sep-content">
+    ${logoHtml}
     <div class="sep-icon">${sec.icon}</div>
     <div class="sep-titulo">${sec.label}</div>
     <div class="sep-sub">Portafolio de Referencias</div>
@@ -681,9 +742,9 @@ function renderInfCard(prod) {
 <div class="inf-card">
   <span class="inf-top" style="background:var(--rojo)">★</span>
   ${imgTag(prod, '36mm', '32mm')}
-  <div class="inf-nombre">${prod.nombre}</div>
-  <div class="inf-pres">${prod.pres}</div>
-  <div class="inf-cod">${prod.cod}</div>
+  <div class="inf-nombre">${getNombrePort(prod)}</div>
+  <div class="inf-pres">${prod.presentacion}</div>
+  <div class="inf-cod">${prod.codigoBarra || ''}</div>
   <div class="inf-precio">${fmt(prod.precio)}</div>
 </div>`;
 }
@@ -692,16 +753,17 @@ function renderProdCard(prod) {
   return `
 <div class="prod-card">
   ${imgTag(prod, '100%', '28mm')}
-  <div class="prod-nombre">${prod.nombre}</div>
-  <div class="prod-pres">${prod.pres}</div>
-  <div class="prod-cod">${prod.cod}</div>
+  <div class="prod-nombre">${getNombrePort(prod)}</div>
+  <div class="prod-pres">${prod.presentacion}</div>
+  <div class="prod-cod">${prod.codigoBarra || ''}</div>
   <div class="prod-precio">${fmt(prod.precio)}</div>
 </div>`;
 }
 
 function renderPagina(sec, pag) {
-  const prods      = pag.ids.map(byId).filter(Boolean);
+  const prods       = pag.ids.map(byId).filter(Boolean);
   const infaltables = pag.infaltables.map(byId).filter(Boolean);
+  const tieneInf    = infaltables.length > 0;
 
   return `
 <div class="page ${sec.catClass}">
@@ -715,13 +777,14 @@ function renderPagina(sec, pag) {
   <!-- BODY -->
   <div class="page-body">
     <!-- INFALTABLES -->
+    ${tieneInf ? `
     <div class="col-inf">
       <div class="inf-title">★ Infaltables</div>
       ${infaltables.map(p => renderInfCard(p)).join('')}
-    </div>
+    </div>` : ''}
     <!-- PRODUCTOS -->
     <div class="col-prod">
-      <div class="prod-grid">
+      <div class="prod-grid" style="${!tieneInf ? 'grid-template-columns: repeat(5, 1fr);' : ''}">
         ${prods.map(p => renderProdCard(p)).join('')}
       </div>
     </div>
@@ -738,23 +801,9 @@ function renderPagina(sec, pag) {
 </div>`;
 }
 
-// ============================================================
-//  INIT: cargar mapa de imágenes y renderizar
-// ============================================================
-async function init() {
-  try {
-    const sbClient = supabase.createClient(SUPA_URL, SUPA_ANON);
-    const { data: archivos } = await sbClient.storage.from(BUCKET).list('', { limit: 2000 });
-    _imgMap = {};
-    (archivos || []).forEach(f => {
-      const m = f.name.match(/^img_(\d+)\.(\w+)$/);
-      if (m) _imgMap[parseInt(m[1])] = m[2];
-    });
-  } catch(e) {
-    console.warn('Supabase no disponible, usando imágenes locales:', e);
-  }
+function renderPortafolio() {
+  const SECCIONES = buildSecciones(_portConfig);
 
-  // Generar HTML
   let html = '';
   for (const sec of SECCIONES) {
     html += renderSeparador(sec);
@@ -764,11 +813,110 @@ async function init() {
   }
 
   document.getElementById('dynamic-content').innerHTML = html;
-
-  // Mostrar portafolio y ocultar spinner
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('portafolio-container').style.display = 'block';
 }
+
+function cargarDesdeCache() {
+  try {
+    const lsPort = localStorage.getItem('catalogo_portafolio_config');
+    if (lsPort) _portConfig = JSON.parse(lsPort);
+
+    const lsNom = localStorage.getItem('catalogo_nombres');
+    if (lsNom) _nombresMap = JSON.parse(lsNom);
+
+    const lsElim = localStorage.getItem('catalogo_eliminados');
+    if (lsElim) _eliminados = JSON.parse(lsElim);
+
+    const lsCustom = localStorage.getItem('catalogo_custom');
+    if (lsCustom) {
+      const custom = JSON.parse(lsCustom);
+      custom.forEach(p => {
+        if (!productos.find(x => x.id === p.id)) productos.push(p);
+      });
+    }
+
+    const lsImg = localStorage.getItem('catalogo_img_map');
+    if (lsImg) _imgMap = JSON.parse(lsImg);
+  } catch(e) {
+    console.warn('Error leyendo localStorage:', e);
+  }
+}
+
+async function sincronizarSupabase() {
+  try {
+    const sbClient = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+    // 1. Fotos del bucket
+    try {
+      const res = await sbClient.storage.from(BUCKET).list('', { limit: 2000 });
+      _imgMap = {};
+      (res.data || []).forEach(f => {
+        const m = f.name.match(/^img_(\d+)\.(\w+)$/);
+        if (m) _imgMap[parseInt(m[1])] = m[2];
+      });
+      try { localStorage.setItem('catalogo_img_map', JSON.stringify(_imgMap)); } catch(e){}
+    } catch(e) { console.warn('Bucket fotos:', e); }
+
+    // 2. Configuración desde catalogo_config
+    const { data: cfg, error } = await sbClient.from('catalogo_config').select('clave, valor');
+    if (!error && cfg) {
+      cfg.forEach(row => {
+        if (row.clave === 'portafolio_config' && row.valor) {
+          _portConfig = row.valor;
+          try { localStorage.setItem('catalogo_portafolio_config', JSON.stringify(_portConfig)); } catch(e){}
+        }
+        if (row.clave === 'nombres' && row.valor) {
+          _nombresMap = row.valor;
+          try { localStorage.setItem('catalogo_nombres', JSON.stringify(_nombresMap)); } catch(e){}
+        }
+        if (row.clave === 'eliminados' && row.valor) {
+          _eliminados = row.valor;
+          try { localStorage.setItem('catalogo_eliminados', JSON.stringify(_eliminados)); } catch(e){}
+        }
+        if (row.clave === 'productos_custom' && row.valor) {
+          _productosCustom = row.valor;
+          try { localStorage.setItem('catalogo_custom', JSON.stringify(_productosCustom)); } catch(e){}
+          _productosCustom.forEach(p => {
+            if (!productos.find(x => x.id === p.id)) productos.push(p);
+          });
+        }
+      });
+
+      renderPortafolio();
+
+      const dbg = document.getElementById('debug-bar');
+      if (dbg) {
+        const infCount = Object.values(_portConfig.infaltables || {}).reduce((a,b) => a + (Array.isArray(b) ? b.length : 0), 0);
+        dbg.innerHTML = `✅ Configuración sincronizada con Supabase · <strong>${infCount}</strong> infaltables configurados`;
+        dbg.style.display = 'block';
+        setTimeout(() => { if(dbg) dbg.style.display='none'; }, 4000);
+      }
+    }
+  } catch(e) {
+    console.warn('[Portafolio] Supabase no disponible:', e);
+  }
+}
+
+// ============================================================
+//  INIT: cargar mapa de imágenes y renderizar
+// ============================================================
+async function init() {
+  // 1. Render inmediato con caché local
+  cargarDesdeCache();
+  renderPortafolio();
+
+  // 2. Sincronizar en tiempo real con Supabase
+  await sincronizarSupabase();
+}
+
+// Sincronización instantánea cuando se hacen cambios en admin en otra pestaña
+window.addEventListener('storage', (e) => {
+  if (e.key && e.key.startsWith('catalogo_')) {
+    cargarDesdeCache();
+    renderPortafolio();
+  }
+});
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
